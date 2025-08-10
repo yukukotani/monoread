@@ -1,0 +1,25 @@
+diff --git a/lib/core-BNheElod.js b/lib/core-BNheElod.js
+index 904540bb0fd0619dd29f1de28c274ab47ac0047e..2bfdec0352ac294310595134953c0bf7bffb5490 100644
+--- a/lib/core-BNheElod.js
++++ b/lib/core-BNheElod.js
+@@ -171,7 +171,7 @@ async function cliCore(argv, entry, options, plugins) {
+ 	const { explicit, values, positionals, rest, error } = resolveArgs(args, tokens, {
+ 		shortGrouping: true,
+ 		toKebab: command.toKebab,
+-		skipPositional: cliOptions.subCommands.size > 0 ? 0 : -1
++		skipPositional: callMode === 'subCommand' && cliOptions.subCommands.size > 0 ? 0 : -1
+ 	});
+ 	const omitted = !subCommand;
+ 	const commandContext = await createCommandContext({
+@@ -260,10 +260,7 @@ async function resolveCommand(sub, entry, options) {
+ 	}
+ 	if (omitted || options.subCommands?.size === 0) return doResolveCommand();
+ 	const cmd = options.subCommands?.get(sub);
+-	if (cmd == null) return {
+-		commandName: sub,
+-		callMode: "unexpected"
+-	};
++	if (cmd == null) return doResolveCommand();
+ 	if (isLazyCommand(cmd) && cmd.commandName == null) cmd.commandName = sub;
+ 	else if (typeof cmd === "object" && cmd.name == null) cmd.name = sub;
+ 	return {
