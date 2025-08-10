@@ -1,9 +1,12 @@
 {
-  "name": "typescript-template",
+  "name": "monoread",
   "version": "1.0.0",
   "type": "module",
-  "description": "TypeScript template for Coding AI Agent",
+  "description": "CLI tool for reading any URL in AI-optimized format",
   "main": "dist/index.js",
+  "bin": {
+    "omniread": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
@@ -21,6 +24,12 @@
   "license": "UNLICENSED",
   "engines": {
     "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@mizchi/readability": "^0.7.7",
+    "gunshi": "^0.26.3",
+    "pino": "^9.3.2",
+    "pino-pretty": "^11.3.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
