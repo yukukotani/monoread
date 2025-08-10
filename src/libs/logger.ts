@@ -56,8 +56,3 @@ export function getRootLogger(): pino.Logger {
 export function createChildLogger(name: string): pino.Logger {
   return rootLogger.child({ module: name });
 }
-
-// 後方互換性のため残す
-export function createLogger(config?: Config) {
-  return initializeLogger(config);
-}
