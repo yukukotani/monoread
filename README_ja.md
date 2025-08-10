@@ -4,7 +4,7 @@
 
 ## 機能
 
-- **スマートなコンテンツ抽出**: `@mizchi/readability` (Mozilla Readability) ベースで、GitHub blob などの主要サービスに特化した最適化を実装
+- **スマートなコンテンツ抽出**: [@mizchi/readability](https://github.com/mizchi/readability) (Mozilla Readability) ベースで、GitHub blob などの主要サービスに特化した最適化を実装
 - **AI 最適化された出力**: AI 処理に最適なクリーンで構造化されたコンテンツ
 - **MCP サーバー**: AI アシスタント向けの Model Context Protocol サーバーとして動作可能
 

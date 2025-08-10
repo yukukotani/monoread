@@ -6,7 +6,7 @@ Gives your LLM the context of web pages in the smartest way.
 
 ## Features
 
-- **Smart Content Extraction**: `@mizchi/readability` (Mozilla Readability) base with specialized optimizations for major services such as GitHub blobs
+- **Smart Content Extraction**: [@mizchi/readability](https://github.com/mizchi/readability) (Mozilla Readability) base with specialized optimizations for major services such as GitHub blobs
 - **AI-Optimized Output**: Clean, structured content perfect for AI processing
 - **MCP Server**: Can run as a Model Context Protocol server for AI assistants
 
