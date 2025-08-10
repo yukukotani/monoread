@@ -13,6 +13,17 @@ describe("MonoreadCommand", () => {
     );
   });
 
+  test("log-levelフラグが正しく定義されている", () => {
+    const logLevelFlag = MonoreadCommand.flags["log-level"];
+    assert(logLevelFlag !== undefined);
+    assert(logLevelFlag.options !== undefined);
+    assert(logLevelFlag.options.includes("silent"));
+    assert(logLevelFlag.options.includes("debug"));
+    assert(logLevelFlag.options.includes("info"));
+    assert(logLevelFlag.options.includes("error"));
+    assert(logLevelFlag.default === "silent");
+  });
+
   test("isValidUrlメソッドが正しく動作する", () => {
     // biome-ignore lint/suspicious/noExplicitAny: テスト用のコマンドインスタンス作成で必要
     const command = new MonoreadCommand([], {} as any);

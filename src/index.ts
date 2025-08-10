@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
-import { Args, Command } from "@oclif/core";
+import { Args, Command, Flags } from "@oclif/core";
 import { createLogger } from "./libs/logger.js";
 import { githubProvider } from "./libs/providers/github-provider.js";
 import type { ContentProvider } from "./libs/types.js";
 import { extractContent } from "./usecase/content-extractor.js";
 
 const providers: ContentProvider[] = [githubProvider];
-const logger = createLogger();
 
 export default class MonoreadCommand extends Command {
   static override description =
@@ -20,10 +19,33 @@ export default class MonoreadCommand extends Command {
     }),
   };
 
+  static override flags = {
+    "log-level": Flags.option({
+      options: ["silent", "trace", "debug", "info", "warn", "error", "fatal"],
+      description: "Set the log level",
+      default: "silent",
+    })(),
+  };
+
   async run(): Promise<void> {
-    const { args } = await this.parse(MonoreadCommand);
+    const { args, flags } = await this.parse(MonoreadCommand);
 
     const url = args.url;
+    const logLevel = flags["log-level"] as
+      | "silent"
+      | "trace"
+      | "debug"
+      | "info"
+      | "warn"
+      | "error"
+      | "fatal";
+
+    const logger = createLogger({
+      logging: {
+        level: logLevel,
+        pretty: logLevel !== "silent",
+      },
+    });
 
     if (!this.isValidUrl(url)) {
       logger.error({ url }, "Invalid URL format");
