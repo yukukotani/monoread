@@ -11,6 +11,9 @@ importers:
       '@mizchi/readability':
         specifier: ^0.7.7
         version: 0.7.7
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.0.0
+        version: 1.17.2
       gunshi:
         specifier: 0.27.0-alpha.10
         version: 0.27.0-alpha.10
@@ -20,6 +23,9 @@ importers:
       pino-pretty:
         specifier: ^11.3.0
         version: 11.3.0
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.1.4

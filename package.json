@@ -27,9 +27,11 @@
   },
   "dependencies": {
     "@mizchi/readability": "^0.7.7",
+    "@modelcontextprotocol/sdk": "^1.0.0",
     "gunshi": "0.27.0-alpha.10",
     "pino": "^9.3.2",
-    "pino-pretty": "^11.3.0"
+    "pino-pretty": "^11.3.0",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
