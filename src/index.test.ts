@@ -14,14 +14,19 @@ describe("MonoreadCommand", () => {
   });
 
   test("isValidUrlメソッドが正しく動作する", () => {
+    // biome-ignore lint/suspicious/noExplicitAny: テスト用のコマンドインスタンス作成で必要
     const command = new MonoreadCommand([], {} as any);
 
     // 有効なURL
+    // biome-ignore lint/suspicious/noExplicitAny: プライベートメソッドテストのため必要
     assert((command as any).isValidUrl("https://example.com") === true);
+    // biome-ignore lint/suspicious/noExplicitAny: プライベートメソッドテストのため必要
     assert((command as any).isValidUrl("http://example.com") === true);
 
     // 無効なURL
+    // biome-ignore lint/suspicious/noExplicitAny: プライベートメソッドテストのため必要
     assert((command as any).isValidUrl("invalid-url") === false);
+    // biome-ignore lint/suspicious/noExplicitAny: プライベートメソッドテストのため必要
     assert((command as any).isValidUrl("") === false);
   });
 });
