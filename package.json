@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@mizchi/readability": "^0.7.7",
-    "gunshi": "^0.26.3",
     "pino": "^9.3.2",
     "pino-pretty": "^11.3.0"
   },
