@@ -20,7 +20,6 @@
     "allowUnreachableCode": false,
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "declaration": true,
