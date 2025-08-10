@@ -1,0 +1,115 @@
+import type { ContentProvider, ContentResult } from "../types.js";
+
+export const githubProvider: ContentProvider = {
+  name: "github",
+
+  canHandle(url: string): boolean {
+    return /^https:\/\/github\.com\/[^/]+\/[^/]+\/blob\//.test(url);
+  },
+
+  async extractContent(url: string): Promise<ContentResult> {
+    try {
+      // GitHubのblobURLをAPIのパスに変換
+      const apiUrl = convertBlobUrlToApiUrl(url);
+
+      if (!apiUrl) {
+        return {
+          success: false,
+          error: "Invalid GitHub blob URL format",
+          errorType: "invalid_url",
+        };
+      }
+
+      const response = await fetch(apiUrl, {
+        headers: {
+          Accept: "application/vnd.github.raw+json",
+          "User-Agent": "monoread/1.0.0",
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return {
+            success: false,
+            error: "GitHub file not found",
+            errorType: "not_found",
+          };
+        }
+
+        if (response.status === 401 || response.status === 403) {
+          return {
+            success: false,
+            error: "Access denied. This may be a private repository.",
+            errorType: "auth",
+          };
+        }
+
+        return {
+          success: false,
+          error: `GitHub API error: ${response.status} ${response.statusText}`,
+          errorType: "network",
+        };
+      }
+
+      const content = await response.text();
+      const urlInfo = parseGitHubUrl(url);
+
+      if (!urlInfo.path) {
+        return {
+          success: false,
+          error: "Invalid GitHub URL: missing file path",
+          errorType: "invalid_url",
+        };
+      }
+
+      const pathParts = urlInfo.path.split("/");
+      const fileName = pathParts[pathParts.length - 1] || "";
+      const fileParts = fileName.split(".");
+      const fileType =
+        fileParts.length > 1 ? fileParts[fileParts.length - 1] || "" : "";
+
+      return {
+        success: true,
+        content,
+        metadata: {
+          fileName,
+          fileType,
+          source: url,
+          title: `${urlInfo.owner}/${urlInfo.repo}: ${urlInfo.path}`,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to fetch GitHub file: ${error instanceof Error ? error.message : String(error)}`,
+        errorType: "network",
+      };
+    }
+  },
+};
+
+function convertBlobUrlToApiUrl(blobUrl: string): string | null {
+  const match = blobUrl.match(
+    /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/,
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  const [, owner, repo, branch, path] = match;
+  return `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+}
+
+function parseGitHubUrl(url: string) {
+  const match = url.match(
+    /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/,
+  );
+
+  if (!match) {
+    throw new Error("Invalid GitHub URL format");
+  }
+
+  const [, owner, repo, branch, path] = match;
+  return { owner, repo, branch, path };
+}
