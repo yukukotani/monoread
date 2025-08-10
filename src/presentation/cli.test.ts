@@ -13,15 +13,8 @@ describe("MonoreadCommand", () => {
     );
   });
 
-  test("log-levelフラグが正しく定義されている", () => {
-    const logLevelFlag = MonoreadCommand.flags["log-level"];
-    assert(logLevelFlag !== undefined);
-    assert(logLevelFlag.options !== undefined);
-    assert(logLevelFlag.options.includes("silent"));
-    assert(logLevelFlag.options.includes("debug"));
-    assert(logLevelFlag.options.includes("info"));
-    assert(logLevelFlag.options.includes("error"));
-    assert(logLevelFlag.default === "silent");
+  test("フラグが定義されていない", () => {
+    assert(Object.keys(MonoreadCommand.flags || {}).length === 0);
   });
 
   test("isValidUrlメソッドが正しく動作する", () => {

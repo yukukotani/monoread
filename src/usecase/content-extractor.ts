@@ -6,11 +6,11 @@ const logger = createChildLogger("content-extractor");
 
 export async function extractContent(
   url: string,
-  providers: ContentProvider[]
+  providers: ContentProvider[],
 ): Promise<ContentResult> {
   logger.info(
     { url, providerCount: providers.length },
-    "Starting content extraction"
+    "Starting content extraction",
   );
 
   // 特定プロバイダを順番に試行
@@ -22,7 +22,7 @@ export async function extractContent(
       totalProviders: providers.length,
       matchingProviders: matchingProviders.length,
     },
-    "Provider filtering complete"
+    "Provider filtering complete",
   );
 
   for (const provider of matchingProviders) {
@@ -35,13 +35,13 @@ export async function extractContent(
           url,
           contentLength: result.content.length,
         },
-        "Provider succeeded"
+        "Provider succeeded",
       );
       return result;
     }
     logger.debug(
       { provider: provider.name, url, error: result.error },
-      "Provider failed"
+      "Provider failed",
     );
   }
 
@@ -58,7 +58,7 @@ export async function extractContent(
           status: response.status,
           statusText: response.statusText,
         },
-        "Fallback fetch failed"
+        "Fallback fetch failed",
       );
 
       return {
@@ -84,7 +84,7 @@ export async function extractContent(
         url,
         contentLength: content.length,
       },
-      "Readability extraction successful"
+      "Readability extraction successful",
     );
 
     return {
@@ -100,7 +100,7 @@ export async function extractContent(
         url,
         error: error instanceof Error ? error.message : String(error),
       },
-      "Readability extraction failed"
+      "Readability extraction failed",
     );
 
     return {
