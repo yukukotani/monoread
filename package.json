@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "NODE_ENV=development ./bin/index.js",
+    "dev": "tsx src/index.ts",
     "start": "./bin/index.js",
     "test": "vitest run",
     "test:watch": "vitest --watch",

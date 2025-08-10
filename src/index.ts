@@ -3,8 +3,7 @@
 import { execute } from "@oclif/core";
 
 const main = async (): Promise<void> => {
-  const isDev =
-    process.env.NODE_ENV === "development" || process.argv.includes("--dev");
+  const isDev = process.env.NODE_ENV === "development";
 
   await execute({
     dir: import.meta.url,
