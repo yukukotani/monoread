@@ -1,0 +1,35 @@
+{
+  "name": "typescript-template",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "TypeScript template for Coding AI Agent",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "lint:biome": "biome check .",
+    "lint:tsc": "tsc --noEmit",
+    "lint": "pnpm --parallel run '/^lint:/'",
+    "fix": "biome check --write ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.4",
+    "@power-assert/runtime": "^0.3.0",
+    "@types/node": "^24.2.1",
+    "@vitest/coverage-v8": "^3.2.4",
+    "rollup-plugin-power-assert": "^0.2.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
