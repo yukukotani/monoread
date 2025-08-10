@@ -1,16 +1,16 @@
-import { extract } from "@mizchi/readability";
 import { createChildLogger } from "../libs/logger.js";
+import { extractContentByReadability } from "../libs/readability.js";
 import type { ContentProvider, ContentResult } from "../libs/types.js";
 
 const logger = createChildLogger("content-extractor");
 
 export async function extractContent(
   url: string,
-  providers: ContentProvider[],
+  providers: ContentProvider[]
 ): Promise<ContentResult> {
   logger.info(
     { url, providerCount: providers.length },
-    "Starting content extraction",
+    "Starting content extraction"
   );
 
   // 特定プロバイダを順番に試行
@@ -22,7 +22,7 @@ export async function extractContent(
       totalProviders: providers.length,
       matchingProviders: matchingProviders.length,
     },
-    "Provider filtering complete",
+    "Provider filtering complete"
   );
 
   for (const provider of matchingProviders) {
@@ -35,13 +35,13 @@ export async function extractContent(
           url,
           contentLength: result.content.length,
         },
-        "Provider succeeded",
+        "Provider succeeded"
       );
       return result;
     }
     logger.debug(
       { provider: provider.name, url, error: result.error },
-      "Provider failed",
+      "Provider failed"
     );
   }
 
@@ -58,7 +58,7 @@ export async function extractContent(
           status: response.status,
           statusText: response.statusText,
         },
-        "Fallback fetch failed",
+        "Fallback fetch failed"
       );
 
       return {
@@ -68,29 +68,7 @@ export async function extractContent(
       };
     }
 
-    const html = await response.text();
-    logger.debug({ url, htmlLength: html.length }, "HTML fetched successfully");
-
-    // @mizchi/readabilityでコンテンツを抽出
-    const extracted = extract(html);
-
-    // extractedオブジェクトから安全にプロパティを取得
-    const extractedObj = extracted as unknown as Record<string, unknown>;
-
-    // 安全にプロパティにアクセス
-    const getStringProp = (
-      obj: Record<string, unknown>,
-      key: string,
-    ): string | null => {
-      const value = obj[key];
-      return typeof value === "string" ? value : null;
-    };
-
-    const content =
-      getStringProp(extractedObj, "textContent") ||
-      getStringProp(extractedObj, "content") ||
-      getStringProp(extractedObj, "text") ||
-      "";
+    const content = await extractContentByReadability(url);
 
     if (!content || content.trim().length === 0) {
       logger.warn({ url }, "No content could be extracted from page");
@@ -101,22 +79,18 @@ export async function extractContent(
       };
     }
 
-    const title = getStringProp(extractedObj, "title") || undefined;
-
     logger.info(
       {
         url,
         contentLength: content.length,
-        hasTitle: !!title,
       },
-      "Readability extraction successful",
+      "Readability extraction successful"
     );
 
     return {
       success: true,
       content,
       metadata: {
-        ...(title && { title }),
         source: url,
       },
     };
@@ -126,12 +100,14 @@ export async function extractContent(
         url,
         error: error instanceof Error ? error.message : String(error),
       },
-      "Readability extraction failed",
+      "Readability extraction failed"
     );
 
     return {
       success: false,
-      error: `Failed to extract content: ${error instanceof Error ? error.message : String(error)}`,
+      error: `Failed to extract content: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
       errorType: "network",
     };
   }
