@@ -1,13 +1,20 @@
+import { createLogger } from "../logger.js";
 import type { ContentProvider, ContentResult } from "../types.js";
+
+const logger = createLogger();
 
 export const githubProvider: ContentProvider = {
   name: "github",
 
   canHandle(url: string): boolean {
-    return /^https:\/\/github\.com\/[^/]+\/[^/]+\/blob\//.test(url);
+    const canHandle = /^https:\/\/github\.com\/[^/]+\/[^/]+\/blob\//.test(url);
+    logger.debug({ url, canHandle }, "GitHub provider canHandle check");
+    return canHandle;
   },
 
   async extractContent(url: string): Promise<ContentResult> {
+    logger.info({ url }, "GitHub provider extracting content");
+
     try {
       // GitHubのblobURLをAPIのパスに変換
       const apiUrl = convertBlobUrlToApiUrl(url);
@@ -20,6 +27,8 @@ export const githubProvider: ContentProvider = {
         };
       }
 
+      logger.debug({ apiUrl }, "Fetching from GitHub API");
+
       const response = await fetch(apiUrl, {
         headers: {
           Accept: "application/vnd.github.raw+json",
@@ -28,6 +37,15 @@ export const githubProvider: ContentProvider = {
       });
 
       if (!response.ok) {
+        logger.warn(
+          {
+            status: response.status,
+            statusText: response.statusText,
+            apiUrl,
+          },
+          "GitHub API request failed",
+        );
+
         if (response.status === 404) {
           return {
             success: false,

@@ -1,14 +1,17 @@
+import { createLogger } from "../libs/logger.js";
 import { githubProvider } from "../libs/providers/github-provider.js";
 import type { ContentProvider } from "../libs/types.js";
 import { extractContent } from "../usecase/content-extractor.js";
 
 const providers: ContentProvider[] = [githubProvider];
+const logger = createLogger();
 
 export async function handleCli(): Promise<void> {
   const args = process.argv.slice(2);
 
   // ヘルプメッセージの表示
   if (args.includes("--help") || args.includes("-h") || args.length === 0) {
+    // ヘルプメッセージは標準出力に出力
     console.log("monoread v1.0.0");
     console.log("CLI tool for reading any URL in AI-optimized format");
     console.log("");
@@ -24,6 +27,7 @@ export async function handleCli(): Promise<void> {
 
   // バージョンの表示
   if (args.includes("--version") || args.includes("-v")) {
+    // バージョンも標準出力に出力
     console.log("1.0.0");
     process.exit(0);
   }
@@ -32,59 +36,81 @@ export async function handleCli(): Promise<void> {
 
   // URL が提供されているかチェック
   if (!url) {
-    console.error("Error: URL is required");
-    console.error("Use --help for usage information");
+    logger.error("URL is required");
+    process.stderr.write("Error: URL is required\n");
+    process.stderr.write("Use --help for usage information\n");
     process.exit(1);
   }
 
   // URL の妥当性をチェック
   if (!isValidUrl(url)) {
-    console.error("Error: Invalid URL format");
-    console.error("Use --help for usage information");
+    logger.error({ url }, "Invalid URL format");
+    process.stderr.write("Error: Invalid URL format\n");
+    process.stderr.write("Use --help for usage information\n");
     process.exit(1);
   }
 
-  console.error(`Processing: ${url}`);
+  logger.info({ url }, "Processing URL");
+  process.stderr.write(`Processing: ${url}\n`);
 
   const result = await extractContent(url, providers);
 
   if (result.success) {
-    // メタデータがある場合は出力
+    logger.info(
+      {
+        metadata: result.metadata,
+        contentLength: result.content.length,
+      },
+      "Content extracted successfully",
+    );
+
+    // メタデータがある場合は標準エラー出力に出力
     if (result.metadata.title) {
-      console.error(`Title: ${result.metadata.title}`);
+      process.stderr.write(`Title: ${result.metadata.title}\n`);
     }
     if (result.metadata.fileName) {
-      console.error(`File: ${result.metadata.fileName}`);
+      process.stderr.write(`File: ${result.metadata.fileName}\n`);
     }
 
     // メインコンテンツを標準出力に出力
     console.log(result.content);
     process.exit(0);
   } else {
-    console.error(`Error: ${result.error}`);
+    logger.error(
+      {
+        error: result.error,
+        errorType: result.errorType,
+        url,
+      },
+      "Failed to extract content",
+    );
+
+    process.stderr.write(`Error: ${result.error}\n`);
 
     // エラータイプに応じた追加情報を表示
     switch (result.errorType) {
       case "not_found":
-        console.error("The specified URL or file was not found.");
+        process.stderr.write("The specified URL or file was not found.\n");
         break;
       case "auth":
-        console.error(
-          "Authentication required. This may be a private repository.",
+        process.stderr.write(
+          "Authentication required. This may be a private repository.\n",
         );
-        console.error(
-          "Consider setting up GitHub token for private repositories.",
+        process.stderr.write(
+          "Consider setting up GitHub token for private repositories.\n",
         );
         break;
       case "rate_limit":
-        console.error("API rate limit exceeded. Please try again later.");
+        process.stderr.write(
+          "API rate limit exceeded. Please try again later.\n",
+        );
         break;
       case "invalid_url":
-        console.error("Please provide a valid URL.");
+        process.stderr.write("Please provide a valid URL.\n");
         break;
       case "network":
-        console.error(
-          "Network error. Please check your connection and try again.",
+        process.stderr.write(
+          "Network error. Please check your connection and try again.\n",
         );
         break;
     }
