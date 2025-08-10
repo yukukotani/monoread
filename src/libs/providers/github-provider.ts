@@ -1,7 +1,7 @@
-import { createLogger } from "../logger.js";
+import { createChildLogger } from "../logger.js";
 import type { ContentProvider, ContentResult } from "../types.js";
 
-const logger = createLogger();
+const logger = createChildLogger("github-provider");
 
 export const githubProvider: ContentProvider = {
   name: "github",

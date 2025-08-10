@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Args, Command, Flags } from "@oclif/core";
-import { createLogger } from "./libs/logger.js";
+import { createChildLogger, initializeLogger } from "./libs/logger.js";
 import { githubProvider } from "./libs/providers/github-provider.js";
 import type { ContentProvider } from "./libs/types.js";
 import { extractContent } from "./usecase/content-extractor.js";
@@ -40,12 +40,15 @@ export default class MonoreadCommand extends Command {
       | "error"
       | "fatal";
 
-    const logger = createLogger({
+    // グローバルロガーを初期化
+    initializeLogger({
       logging: {
         level: logLevel,
         pretty: logLevel !== "silent",
       },
     });
+
+    const logger = createChildLogger("cli");
 
     if (!this.isValidUrl(url)) {
       logger.error({ url }, "Invalid URL format");

@@ -1,8 +1,8 @@
 import { extract } from "@mizchi/readability";
-import { createLogger } from "../libs/logger.js";
+import { createChildLogger } from "../libs/logger.js";
 import type { ContentProvider, ContentResult } from "../libs/types.js";
 
-const logger = createLogger();
+const logger = createChildLogger("content-extractor");
 
 export async function extractContent(
   url: string,

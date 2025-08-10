@@ -16,7 +16,19 @@ export interface Config {
   };
 }
 
-export function createLogger(config?: Config) {
+export type LogLevel =
+  | "silent"
+  | "trace"
+  | "debug"
+  | "info"
+  | "warn"
+  | "error"
+  | "fatal";
+
+// グローバルルートロガーインスタンス
+let rootLogger: pino.Logger = pino({ level: "silent" });
+
+export function initializeLogger(config?: Config) {
   const logLevel = config?.logging?.level || "silent";
   const prettyPrint = config?.logging?.pretty || false;
 
@@ -33,5 +45,19 @@ export function createLogger(config?: Config) {
     };
   }
 
-  return pino(options);
+  rootLogger = pino(options);
+  return rootLogger;
+}
+
+export function getRootLogger(): pino.Logger {
+  return rootLogger;
+}
+
+export function createChildLogger(name: string): pino.Logger {
+  return rootLogger.child({ module: name });
+}
+
+// 後方互換性のため残す
+export function createLogger(config?: Config) {
+  return initializeLogger(config);
 }
