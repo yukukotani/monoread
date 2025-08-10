@@ -5,7 +5,7 @@
   "description": "CLI tool for reading any URL in AI-optimized format",
   "main": "dist/index.js",
   "bin": {
-    "omniread": "./dist/index.js"
+    "monoread": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",

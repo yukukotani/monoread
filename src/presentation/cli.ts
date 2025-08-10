@@ -9,16 +9,16 @@ export async function handleCli(): Promise<void> {
 
   // ヘルプメッセージの表示
   if (args.includes("--help") || args.includes("-h") || args.length === 0) {
-    console.log("omniread v1.0.0");
+    console.log("monoread v1.0.0");
     console.log("CLI tool for reading any URL in AI-optimized format");
     console.log("");
     console.log("Usage:");
-    console.log("  omniread <url>     Extract content from URL");
-    console.log("  omniread --help    Display this help message");
+    console.log("  monoread <url>     Extract content from URL");
+    console.log("  monoread --help    Display this help message");
     console.log("");
     console.log("Examples:");
-    console.log("  omniread https://github.com/owner/repo/blob/main/file.ts");
-    console.log("  omniread https://example.com/article");
+    console.log("  monoread https://github.com/owner/repo/blob/main/file.ts");
+    console.log("  monoread https://example.com/article");
     process.exit(0);
   }
 
