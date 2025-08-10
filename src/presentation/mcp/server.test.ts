@@ -16,6 +16,7 @@ describe("MCPサーバ", () => {
       setRequestHandler: vi.fn(),
       connect: vi.fn(),
       close: vi.fn(),
+      sendLoggingMessage: vi.fn(),
     };
 
     mockTransport = {};
@@ -44,6 +45,7 @@ describe("MCPサーバ", () => {
         {
           capabilities: {
             tools: {},
+            logging: {},
           },
         },
       );
@@ -55,12 +57,8 @@ describe("MCPサーバ", () => {
     it("read_url_contentツールハンドラを登録する", async () => {
       await startMcpServer();
 
-      expect(mockServer.setRequestHandler).toHaveBeenCalledWith(
-        expect.any(Function),
-      );
-
-      const handler = mockServer.setRequestHandler.mock.calls[0][0];
-      expect(handler).toBeDefined();
+      expect(mockServer.setRequestHandler).toHaveBeenCalledTimes(2);
+      expect(mockServer.sendLoggingMessage).toHaveBeenCalled();
     });
 
     it("SIGINTシグナルでグレースフルシャットダウンする", async () => {

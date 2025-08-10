@@ -6,15 +6,12 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { extractContent } from "../../usecase/content-extractor.js";
-import { createMcpLogger } from "./mcp-logger.js";
 
 const ReadUrlSchema = z.object({
   url: z.string().url().describe("The URL to read content from"),
 });
 
 export async function startMcpServer(): Promise<void> {
-  const logger = createMcpLogger("mcp-server");
-
   try {
     const server = new Server(
       {
@@ -24,6 +21,7 @@ export async function startMcpServer(): Promise<void> {
       {
         capabilities: {
           tools: {},
+          logging: {},
         },
       },
     );
@@ -66,13 +64,20 @@ export async function startMcpServer(): Promise<void> {
       }
 
       const { url } = parsed.data;
-      logger.debug({ url }, "Processing read_url_content request");
+
+      await server.sendLoggingMessage({
+        level: "debug",
+        data: `Processing read_url_content request for URL: ${url}`,
+      });
 
       try {
         const result = await extractContent(url);
 
         if (result.success) {
-          logger.debug({ url }, "Content extraction successful");
+          await server.sendLoggingMessage({
+            level: "debug",
+            data: `Content extraction successful for URL: ${url}`,
+          });
           return {
             content: [
               {
@@ -82,10 +87,10 @@ export async function startMcpServer(): Promise<void> {
             ],
           };
         } else {
-          logger.warn(
-            { url, error: result.error },
-            "Content extraction failed",
-          );
+          await server.sendLoggingMessage({
+            level: "warning",
+            data: `Content extraction failed for URL: ${url}, error: ${result.error}`,
+          });
           return {
             content: [
               {
@@ -97,17 +102,17 @@ export async function startMcpServer(): Promise<void> {
           };
         }
       } catch (error) {
-        logger.error(
-          { url, error: error instanceof Error ? error.message : error },
-          "Unexpected error during content extraction",
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        console.error(
+          `Unexpected error during content extraction for ${url}:`,
+          errorMessage,
         );
         return {
           content: [
             {
               type: "text",
-              text: `Error: ${
-                error instanceof Error ? error.message : String(error)
-              }`,
+              text: `Error: ${errorMessage}`,
             },
           ],
           isError: true,
@@ -118,20 +123,29 @@ export async function startMcpServer(): Promise<void> {
     const transport = new StdioServerTransport();
 
     process.on("SIGINT", async () => {
-      logger.info("Received SIGINT, shutting down gracefully");
+      await server.sendLoggingMessage({
+        level: "info",
+        data: "Received SIGINT, shutting down gracefully",
+      });
       await server.close();
       process.exit(0);
     });
 
     process.on("SIGTERM", async () => {
-      logger.info("Received SIGTERM, shutting down gracefully");
+      await server.sendLoggingMessage({
+        level: "info",
+        data: "Received SIGTERM, shutting down gracefully",
+      });
       await server.close();
       process.exit(0);
     });
 
-    logger.info("Starting MCP server");
     await server.connect(transport);
-    logger.info("MCP server started successfully");
+
+    await server.sendLoggingMessage({
+      level: "info",
+      data: "MCP server started successfully",
+    });
   } catch (error) {
     console.error("Failed to start MCP server:", error);
     process.exit(1);
