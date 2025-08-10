@@ -5,12 +5,12 @@
   "description": "CLI tool for reading any URL in AI-optimized format",
   "main": "dist/index.js",
   "bin": {
-    "monoread": "./bin/run.js"
+    "monoread": "./dist/index.js"
   },
   "scripts": {
     "build": "tsdown",
     "dev": "tsx src/index.ts",
-    "start": "./bin/index.js",
+    "start": "node ./dist/index.js",
     "mcp": "tsx src/index.ts mcp",
     "mcp:debug": "LOG_LEVEL=debug tsx src/index.ts mcp",
     "mcp:inspector": "npx @modelcontextprotocol/inspector@latest tsx src/index.ts mcp",
