@@ -1,109 +1,113 @@
-import { createChildLogger } from "../logger.js";
+import { createLogger } from "../logger.js";
 import type { ContentProvider, ContentResult } from "../types.js";
 
-const logger = createChildLogger("github-provider");
+export const createGithubProvider = (): ContentProvider => {
+  const logger = createLogger("github-provider");
 
-export const githubProvider: ContentProvider = {
-  name: "github",
+  return {
+    name: "github",
 
-  canHandle(url: string): boolean {
-    const canHandle = /^https:\/\/github\.com\/[^/]+\/[^/]+\/blob\//.test(url);
-    logger.debug({ url, canHandle }, "GitHub provider canHandle check");
-    return canHandle;
-  },
+    canHandle(url: string): boolean {
+      const canHandle = /^https:\/\/github\.com\/[^/]+\/[^/]+\/blob\//.test(
+        url,
+      );
+      logger.debug({ url, canHandle }, "GitHub provider canHandle check");
+      return canHandle;
+    },
 
-  async extractContent(url: string): Promise<ContentResult> {
-    logger.info({ url }, "GitHub provider extracting content");
+    async extractContent(url: string): Promise<ContentResult> {
+      logger.info({ url }, "GitHub provider extracting content");
 
-    try {
-      // GitHubのblobURLをAPIのパスに変換
-      const apiUrl = convertBlobUrlToApiUrl(url);
+      try {
+        // GitHubのblobURLをAPIのパスに変換
+        const apiUrl = convertBlobUrlToApiUrl(url);
 
-      if (!apiUrl) {
-        return {
-          success: false,
-          error: "Invalid GitHub blob URL format",
-          errorType: "invalid_url",
-        };
-      }
+        if (!apiUrl) {
+          return {
+            success: false,
+            error: "Invalid GitHub blob URL format",
+            errorType: "invalid_url",
+          };
+        }
 
-      logger.debug({ apiUrl }, "Fetching from GitHub API");
+        logger.debug({ apiUrl }, "Fetching from GitHub API");
 
-      const response = await fetch(apiUrl, {
-        headers: {
-          Accept: "application/vnd.github.raw+json",
-          "User-Agent": "monoread/1.0.0",
-        },
-      });
-
-      if (!response.ok) {
-        logger.warn(
-          {
-            status: response.status,
-            statusText: response.statusText,
-            apiUrl,
+        const response = await fetch(apiUrl, {
+          headers: {
+            Accept: "application/vnd.github.raw+json",
+            "User-Agent": "monoread/1.0.0",
           },
-          "GitHub API request failed",
-        );
+        });
 
-        if (response.status === 404) {
+        if (!response.ok) {
+          logger.warn(
+            {
+              status: response.status,
+              statusText: response.statusText,
+              apiUrl,
+            },
+            "GitHub API request failed",
+          );
+
+          if (response.status === 404) {
+            return {
+              success: false,
+              error: "GitHub file not found",
+              errorType: "not_found",
+            };
+          }
+
+          if (response.status === 401 || response.status === 403) {
+            return {
+              success: false,
+              error: "Access denied. This may be a private repository.",
+              errorType: "auth",
+            };
+          }
+
           return {
             success: false,
-            error: "GitHub file not found",
-            errorType: "not_found",
+            error: `GitHub API error: ${response.status} ${response.statusText}`,
+            errorType: "network",
           };
         }
 
-        if (response.status === 401 || response.status === 403) {
+        const content = await response.text();
+        const urlInfo = parseGitHubUrl(url);
+
+        if (!urlInfo.path) {
           return {
             success: false,
-            error: "Access denied. This may be a private repository.",
-            errorType: "auth",
+            error: "Invalid GitHub URL: missing file path",
+            errorType: "invalid_url",
           };
         }
+
+        const pathParts = urlInfo.path.split("/");
+        const fileName = pathParts[pathParts.length - 1] || "";
+        const fileParts = fileName.split(".");
+        const fileType =
+          fileParts.length > 1 ? fileParts[fileParts.length - 1] || "" : "";
 
         return {
+          success: true,
+          content,
+          metadata: {
+            fileName,
+            fileType,
+            source: url,
+            title: `${urlInfo.owner}/${urlInfo.repo}: ${urlInfo.path}`,
+          },
+        };
+      } catch (error) {
+        return {
           success: false,
-          error: `GitHub API error: ${response.status} ${response.statusText}`,
+          error: `Failed to fetch GitHub file: ${error instanceof Error ? error.message : String(error)}`,
           errorType: "network",
         };
       }
-
-      const content = await response.text();
-      const urlInfo = parseGitHubUrl(url);
-
-      if (!urlInfo.path) {
-        return {
-          success: false,
-          error: "Invalid GitHub URL: missing file path",
-          errorType: "invalid_url",
-        };
-      }
-
-      const pathParts = urlInfo.path.split("/");
-      const fileName = pathParts[pathParts.length - 1] || "";
-      const fileParts = fileName.split(".");
-      const fileType =
-        fileParts.length > 1 ? fileParts[fileParts.length - 1] || "" : "";
-
-      return {
-        success: true,
-        content,
-        metadata: {
-          fileName,
-          fileType,
-          source: url,
-          title: `${urlInfo.owner}/${urlInfo.repo}: ${urlInfo.path}`,
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: `Failed to fetch GitHub file: ${error instanceof Error ? error.message : String(error)}`,
-        errorType: "network",
-      };
-    }
-  },
+    },
+  };
 };
 
 function convertBlobUrlToApiUrl(blobUrl: string): string | null {

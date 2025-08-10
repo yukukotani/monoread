@@ -1,14 +1,7 @@
-#!/usr/bin/env node
-
-import { execute } from "@oclif/core";
+import { execute } from "./presentation/cli/cli.js";
 
 const main = async (): Promise<void> => {
-  const isDev = process.env.NODE_ENV === "development";
-
-  await execute({
-    dir: import.meta.url,
-    development: isDev,
-  });
+  await execute();
 };
 
 main().catch((error) => {

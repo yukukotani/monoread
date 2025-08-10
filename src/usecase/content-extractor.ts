@@ -1,25 +1,25 @@
-import { createChildLogger } from "../libs/logger.js";
+import { createLogger } from "../libs/logger.js";
+import { createGithubProvider } from "../libs/providers/github-provider.js";
 import { extractContentByReadability } from "../libs/readability.js";
 import type { ContentProvider, ContentResult } from "../libs/types.js";
 
-const logger = createChildLogger("content-extractor");
+const PROVIDERS: ContentProvider[] = [createGithubProvider()];
 
-export async function extractContent(
-  url: string,
-  providers: ContentProvider[],
-): Promise<ContentResult> {
+export async function extractContent(url: string): Promise<ContentResult> {
+  const logger = createLogger("content-extractor");
+
   logger.info(
-    { url, providerCount: providers.length },
+    { url, providerCount: PROVIDERS.length },
     "Starting content extraction",
   );
 
   // 特定プロバイダを順番に試行
-  const matchingProviders = providers.filter((p) => p.canHandle(url));
+  const matchingProviders = PROVIDERS.filter((p) => p.canHandle(url));
 
   logger.debug(
     {
       url,
-      totalProviders: providers.length,
+      totalProviders: PROVIDERS.length,
       matchingProviders: matchingProviders.length,
     },
     "Provider filtering complete",

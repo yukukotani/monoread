@@ -5,7 +5,7 @@
   "description": "CLI tool for reading any URL in AI-optimized format",
   "main": "dist/index.js",
   "bin": {
-    "monoread": "./bin/index.js"
+    "monoread": "./bin/run.js"
   },
   "scripts": {
     "build": "tsc",
@@ -19,14 +19,6 @@
     "lint": "pnpm --parallel run '/^lint:/'",
     "fix": "biome check --write ."
   },
-  "oclif": {
-    "bin": "monoread",
-    "dirname": "monoread",
-    "commands": {
-      "strategy": "single",
-      "target": "./dist/presentation/cli.js"
-    }
-  },
   "keywords": [],
   "author": "",
   "license": "UNLICENSED",
@@ -35,7 +27,7 @@
   },
   "dependencies": {
     "@mizchi/readability": "^0.7.7",
-    "@oclif/core": "^4.5.2",
+    "gunshi": "0.27.0-alpha.10",
     "pino": "^9.3.2",
     "pino-pretty": "^11.3.0"
   },
