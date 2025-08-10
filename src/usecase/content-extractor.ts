@@ -32,11 +32,22 @@ export async function extractContent(
     const { extract } = await import("@mizchi/readability");
     const extracted = extract(html);
 
-    // extractedの構造に応じてコンテンツを取得
+    // extractedオブジェクトから安全にプロパティを取得
+    const extractedObj = extracted as unknown as Record<string, unknown>;
+
+    // 安全にプロパティにアクセス
+    const getStringProp = (
+      obj: Record<string, unknown>,
+      key: string,
+    ): string | null => {
+      const value = obj[key];
+      return typeof value === "string" ? value : null;
+    };
+
     const content =
-      (extracted as any).textContent ||
-      (extracted as any).content ||
-      (extracted as any).text ||
+      getStringProp(extractedObj, "textContent") ||
+      getStringProp(extractedObj, "content") ||
+      getStringProp(extractedObj, "text") ||
       "";
 
     if (!content || content.trim().length === 0) {
@@ -47,11 +58,13 @@ export async function extractContent(
       };
     }
 
+    const title = getStringProp(extractedObj, "title") || undefined;
+
     return {
       success: true,
       content,
       metadata: {
-        title: (extracted as any).title || undefined,
+        ...(title && { title }),
         source: url,
       },
     };
