@@ -29,7 +29,6 @@ export default class MonoreadCommand extends Command {
     }
 
     logger.info({ url }, "Processing URL");
-    this.logToStderr(`Processing: ${url}`);
 
     const result = await extractContent(url, providers);
 
@@ -41,13 +40,6 @@ export default class MonoreadCommand extends Command {
         },
         "Content extracted successfully",
       );
-
-      if (result.metadata.title) {
-        this.logToStderr(`Title: ${result.metadata.title}`);
-      }
-      if (result.metadata.fileName) {
-        this.logToStderr(`File: ${result.metadata.fileName}`);
-      }
 
       this.log(result.content);
     } else {
