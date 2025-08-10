@@ -9,8 +9,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsx src/index.ts",
-    "start": "node dist/index.js",
+    "dev": "./bin/dev.js",
+    "start": "./bin/run.js",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
@@ -18,6 +18,14 @@
     "lint:tsc": "tsc --noEmit",
     "lint": "pnpm --parallel run '/^lint:/'",
     "fix": "biome check --write ."
+  },
+  "oclif": {
+    "bin": "monoread",
+    "dirname": "monoread",
+    "commands": {
+      "strategy": "single",
+      "target": "./dist/index.js"
+    }
   },
   "keywords": [],
   "author": "",
@@ -27,6 +35,7 @@
   },
   "dependencies": {
     "@mizchi/readability": "^0.7.7",
+    "@oclif/core": "^4.5.2",
     "pino": "^9.3.2",
     "pino-pretty": "^11.3.0"
   },
