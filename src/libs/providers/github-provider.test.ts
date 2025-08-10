@@ -1,8 +1,10 @@
 import assert from "node:assert";
 import { describe, it } from "vitest";
-import { githubProvider } from "./github-provider.js";
+import { createGithubProvider } from "./github-provider.js";
 
 describe("githubProvider", () => {
+  const githubProvider = createGithubProvider();
+
   describe("canHandle", () => {
     it("GitHubのblobURLを正しく判定できる", () => {
       const validUrls = [
