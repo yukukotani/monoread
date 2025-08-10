@@ -53,7 +53,7 @@ claude mcp add monoread -s user -- npx -y monoread@latest mcp
 
 ## License
 
-MIT © [Yuku Kotani](mailto:yukukotani@gmail.com)
+Apache-2.0 © [Yuku Kotani](mailto:yukukotani@gmail.com)
 
 ## Contributing
 

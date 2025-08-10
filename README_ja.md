@@ -1,12 +1,12 @@
 # monoread
 
-最も賢い方法でWebページのコンテキストをLLMに提供します。
+最も賢い方法で Web ページのコンテキストを LLM に提供します。
 
 ## 機能
 
-- **スマートなコンテンツ抽出**: `@mizchi/readability` (Mozilla Readability) ベースで、GitHub blobなどの主要サービスに特化した最適化を実装
-- **AI最適化された出力**: AI処理に最適なクリーンで構造化されたコンテンツ
-- **MCPサーバー**: AIアシスタント向けのModel Context Protocolサーバーとして動作可能
+- **スマートなコンテンツ抽出**: `@mizchi/readability` (Mozilla Readability) ベースで、GitHub blob などの主要サービスに特化した最適化を実装
+- **AI 最適化された出力**: AI 処理に最適なクリーンで構造化されたコンテンツ
+- **MCP サーバー**: AI アシスタント向けの Model Context Protocol サーバーとして動作可能
 
 ## インストール
 
@@ -27,23 +27,23 @@ monoread read https://example.com
 
 ## 使用方法
 
-### CLIモード
+### CLI モード
 
-#### URLを読む
+#### URL を読む
 
 ```bash
 monoread read https://example.com/article
 ```
 
-#### GitHubファイルを読む
+#### GitHub ファイルを読む
 
 ```bash
 monoread read https://github.com/owner/repo/blob/main/README.md
 ```
 
-### MCPサーバーモード
+### MCP サーバーモード
 
-Claude Codeに追加:
+Claude Code に追加:
 
 ```bash
 claude mcp add monoread -s user -- npx -y monoread@latest mcp
@@ -51,7 +51,7 @@ claude mcp add monoread -s user -- npx -y monoread@latest mcp
 
 ## ライセンス
 
-MIT © [Yuku Kotani](mailto:yukukotani@gmail.com)
+Apache-2.0 © [Yuku Kotani](mailto:yukukotani@gmail.com)
 
 ## 貢献
 
