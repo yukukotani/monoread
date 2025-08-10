@@ -1,5 +1,5 @@
 import { assert, describe, test } from "vitest";
-import MonoreadCommand from "./index.js";
+import MonoreadCommand from "./cli.js";
 
 describe("MonoreadCommand", () => {
   test("引数が必要である", () => {

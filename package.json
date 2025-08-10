@@ -5,12 +5,12 @@
   "description": "CLI tool for reading any URL in AI-optimized format",
   "main": "dist/index.js",
   "bin": {
-    "monoread": "./dist/index.js"
+    "monoread": "./bin/index.js"
   },
   "scripts": {
     "build": "tsc",
-    "dev": "./bin/dev.js",
-    "start": "./bin/run.js",
+    "dev": "NODE_ENV=development ./bin/index.js",
+    "start": "./bin/index.js",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
@@ -24,7 +24,7 @@
     "dirname": "monoread",
     "commands": {
       "strategy": "single",
-      "target": "./dist/index.js"
+      "target": "./dist/presentation/cli.js"
     }
   },
   "keywords": [],
