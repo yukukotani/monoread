@@ -1,7 +1,7 @@
 import { createLogger } from "../libs/logger.js";
-import { createGithubProvider } from "../libs/providers/github-provider.js";
 import { extractContentByReadability } from "../libs/readability.js";
 import type { ContentProvider, ContentResult } from "../libs/types.js";
+import { createGithubProvider } from "./providers/github-provider.js";
 
 const PROVIDERS: ContentProvider[] = [createGithubProvider()];
 

@@ -1,5 +1,5 @@
-import { createLogger } from "../logger.js";
-import type { ContentProvider, ContentResult } from "../types.js";
+import { createLogger } from "../../libs/logger.js";
+import type { ContentProvider, ContentResult } from "../../libs/types.js";
 
 export const createGithubProvider = (): ContentProvider => {
   const logger = createLogger("github-provider");
