@@ -13,7 +13,7 @@
     "start": "./bin/index.js",
     "mcp": "tsx src/index.ts mcp",
     "mcp:debug": "LOG_LEVEL=debug tsx src/index.ts mcp",
-    "mcp:inspector": "npx @modelcontextprotocol/inspector tsx src/index.ts mcp",
+    "mcp:inspector": "npx @modelcontextprotocol/inspector@latest tsx src/index.ts mcp",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
