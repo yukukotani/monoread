@@ -1,3 +1,4 @@
+import { extract } from "@mizchi/readability";
 import type { ContentProvider, ContentResult } from "../libs/types.js";
 
 export async function extractContent(
@@ -28,8 +29,7 @@ export async function extractContent(
 
     const html = await response.text();
 
-    // @mizchi/readabilityのextract関数をインポート
-    const { extract } = await import("@mizchi/readability");
+    // @mizchi/readabilityでコンテンツを抽出
     const extracted = extract(html);
 
     // extractedオブジェクトから安全にプロパティを取得
