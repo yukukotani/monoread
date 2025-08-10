@@ -1,6 +1,6 @@
 {
   "name": "monoread",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
   "description": "CLI tool for reading any URL in AI-optimized format",
   "main": "dist/index.js",
@@ -23,8 +23,8 @@
     "fix": "biome check --write ."
   },
   "keywords": [],
-  "author": "",
-  "license": "UNLICENSED",
+  "author": "Yuku Kotani (yukukotani@gmail.com)",
+  "license": "MIT",
   "engines": {
     "node": ">=22.0.0"
   },
