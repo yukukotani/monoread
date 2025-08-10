@@ -20,7 +20,8 @@
     "lint:biome": "biome check .",
     "lint:tsc": "tsc --noEmit",
     "lint": "pnpm --parallel run '/^lint:/'",
-    "fix": "biome check --write ."
+    "fix": "biome check --write .",
+    "prepublishOnly": "pnpm build"
   },
   "keywords": [],
   "author": "Yuku Kotani (yukukotani@gmail.com)",
