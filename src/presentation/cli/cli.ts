@@ -14,6 +14,7 @@ export async function execute() {
     name: pkgJson.name,
     description: pkgJson.description,
     version: pkgJson.version,
+    renderHeader: async () => "",
     subCommands,
     onBeforeCommand(ctx) {
       if (ctx.values.logLevel) {

@@ -6,7 +6,4 @@ const main = async (): Promise<void> => {
   await execute();
 };
 
-main().catch((error) => {
-  console.error("Unexpected error:", error);
-  process.exit(1);
-});
+main();
