@@ -18,18 +18,19 @@ export async function handleCli(): Promise<void> {
     console.log("Usage:");
     console.log("  monoread <url>     Extract content from URL");
     console.log("  monoread --help    Display this help message");
+    console.log("  monoread --version Display version");
     console.log("");
     console.log("Examples:");
     console.log("  monoread https://github.com/owner/repo/blob/main/file.ts");
     console.log("  monoread https://example.com/article");
-    process.exit(0);
+    return;
   }
 
   // バージョンの表示
   if (args.includes("--version") || args.includes("-v")) {
     // バージョンも標準出力に出力
     console.log("1.0.0");
-    process.exit(0);
+    return;
   }
 
   const url = args[0];
@@ -74,7 +75,6 @@ export async function handleCli(): Promise<void> {
 
     // メインコンテンツを標準出力に出力
     console.log(result.content);
-    process.exit(0);
   } else {
     logger.error(
       {
