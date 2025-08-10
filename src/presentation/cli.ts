@@ -1,41 +1,81 @@
-import { calculate } from "../usecase/calculator.js";
+import { gunshi } from "gunshi";
+import { githubProvider } from "../libs/providers/github-provider.js";
+import type { ContentProvider } from "../libs/types.js";
+import { extractContent } from "../usecase/content-extractor.js";
 
-export const handleCli = (args: string[]): void => {
-  if (args.length < 3) {
-    console.log("Usage: calculator <operation> <number1> <number2>");
-    console.log("Operations: add, subtract, multiply, divide (or +, -, *, /)");
-    console.log("Example: calculator add 5 3");
-    process.exit(1);
+const providers: ContentProvider[] = [githubProvider];
+
+export async function handleCli(): Promise<void> {
+  const cli = gunshi()
+    .name("omniread")
+    .description("CLI tool for reading any URL in AI-optimized format")
+    .version("1.0.0")
+    .argument("<url>", "URL to extract content from")
+    .option("--help, -h", "Display help message")
+    .action(async (url: string) => {
+      // URL の妥当性をチェック
+      if (!isValidUrl(url)) {
+        console.error("Error: Invalid URL format");
+        process.exit(1);
+      }
+
+      console.error(`Processing: ${url}`);
+
+      const result = await extractContent(url, providers);
+
+      if (result.success) {
+        // メタデータがある場合は出力
+        if (result.metadata.title) {
+          console.error(`Title: ${result.metadata.title}`);
+        }
+        if (result.metadata.fileName) {
+          console.error(`File: ${result.metadata.fileName}`);
+        }
+
+        // メインコンテンツを標準出力に出力
+        console.log(result.content);
+        process.exit(0);
+      } else {
+        console.error(`Error: ${result.error}`);
+
+        // エラータイプに応じた追加情報を表示
+        switch (result.errorType) {
+          case "not_found":
+            console.error("The specified URL or file was not found.");
+            break;
+          case "auth":
+            console.error(
+              "Authentication required. This may be a private repository.",
+            );
+            console.error(
+              "Consider setting up GitHub token for private repositories.",
+            );
+            break;
+          case "rate_limit":
+            console.error("API rate limit exceeded. Please try again later.");
+            break;
+          case "invalid_url":
+            console.error("Please provide a valid URL.");
+            break;
+          case "network":
+            console.error(
+              "Network error. Please check your connection and try again.",
+            );
+            break;
+        }
+
+        process.exit(1);
+      }
+    });
+
+  await cli.run();
+}
+
+function isValidUrl(string: string): boolean {
+  try {
+    new URL(string);
+    return true;
+  } catch {
+    return false;
   }
-
-  const operation = args[0];
-  const num1Str = args[1];
-  const num2Str = args[2];
-
-  if (!operation || !num1Str || !num2Str) {
-    console.error("Error: Missing required arguments");
-    process.exit(1);
-  }
-
-  const num1 = Number.parseFloat(num1Str);
-  const num2 = Number.parseFloat(num2Str);
-
-  if (Number.isNaN(num1) || Number.isNaN(num2)) {
-    console.error("Error: Please provide valid numbers");
-    process.exit(1);
-  }
-
-  const result = calculate(operation, num1, num2);
-
-  if (result.success) {
-    console.log(`Result: ${result.value}`);
-    process.exit(0);
-  } else {
-    console.error(`Error: ${result.error}`);
-    process.exit(1);
-  }
-};
-
-export const parseArgs = (argv: string[]): string[] => {
-  return argv.slice(2);
-};
+}
