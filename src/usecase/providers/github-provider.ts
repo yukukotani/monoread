@@ -2,8 +2,6 @@ import { createLogger } from "../../libs/logger.js";
 import type { ContentProvider, ContentResult } from "../../libs/types.js";
 
 export const createGithubProvider = (): ContentProvider => {
-  const logger = createLogger("github-provider");
-
   return {
     name: "github",
 
@@ -11,11 +9,12 @@ export const createGithubProvider = (): ContentProvider => {
       const canHandle = /^https:\/\/github\.com\/[^/]+\/[^/]+\/blob\//.test(
         url,
       );
-      logger.debug({ url, canHandle }, "GitHub provider canHandle check");
       return canHandle;
     },
 
     async extractContent(url: string): Promise<ContentResult> {
+      const logger = createLogger("github-provider");
+
       logger.info({ url }, "GitHub provider extracting content");
 
       try {
