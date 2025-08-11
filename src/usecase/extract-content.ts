@@ -31,7 +31,7 @@ export async function extractContent(url: string): Promise<ContentResult> {
       continue;
     }
 
-    const result = await provider.extractContent(url);
+    const result = await executeProvider(provider, url);
 
     logger.debug(
       { provider: provider.name, url, result: result.success },
@@ -39,6 +39,10 @@ export async function extractContent(url: string): Promise<ContentResult> {
     );
 
     if (result.success) {
+      logger.info(
+        { provider: provider.name, url },
+        "Content extracted successfully",
+      );
       return result;
     }
   }
@@ -48,4 +52,37 @@ export async function extractContent(url: string): Promise<ContentResult> {
     error: "Failed to extract content",
     errorType: "unknown",
   };
+}
+
+async function executeProvider(
+  provider: ContentProvider,
+  url: string,
+): Promise<ContentResult> {
+  try {
+    const result = await provider.extractContent(url);
+
+    if (!result.success) {
+      return result;
+    }
+
+    const trimmedContent = result.content.trim();
+    if (trimmedContent.length === 0) {
+      return {
+        success: false,
+        error: "Empty content",
+        errorType: "unknown",
+      };
+    }
+
+    return {
+      success: true,
+      content: trimmedContent,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+      errorType: "unknown",
+    };
+  }
 }
