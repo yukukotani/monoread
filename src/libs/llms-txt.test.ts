@@ -191,8 +191,6 @@ describe("extractContentFromLlmsTxt", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.content).toBe(mockContent);
-      expect(result.metadata.source).toBe("https://example.com/page");
-      expect(result.metadata.fileType).toBe("llms-txt");
     }
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/page/llms.txt");
   });
@@ -273,8 +271,6 @@ describe("extractContentFromLlmsTxt", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.content).toBe("<div>This is HTML content</div>");
-      expect(result.metadata.source).toBe("https://example.com/page");
-      expect(result.metadata.fileType).toBe("llms-txt");
     }
   });
 
@@ -318,10 +314,6 @@ describe("extractContentFromLlmsTxt", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.content).toBe(mockContent);
-      expect(result.metadata.source).toBe(
-        "https://docs.example.com/guide/intro#section",
-      );
-      expect(result.metadata.fileType).toBe("llms-txt");
     }
     expect(mockFetch).toHaveBeenCalledWith(
       "https://docs.example.com/guide/intro/llms.txt",
@@ -389,8 +381,6 @@ describe("extractContentFromLlmsTxt edge cases", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.content).toBe(mixedContent.trim());
-      expect(result.metadata.source).toBe("https://example.com/page");
-      expect(result.metadata.fileType).toBe("llms-txt");
     }
   });
 
@@ -411,9 +401,6 @@ describe("extractContentFromLlmsTxt edge cases", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.content).toBe(mockContent);
-      expect(result.metadata.source).toBe(
-        "https://api.example.com/v1/docs/reference/auth.html?section=oauth#bearer-tokens",
-      );
     }
     expect(mockFetch).toHaveBeenCalledWith(
       "https://api.example.com/v1/docs/reference/llms.txt",

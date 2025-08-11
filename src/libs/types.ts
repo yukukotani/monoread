@@ -16,15 +16,8 @@ export interface AppError {
   cause?: Error;
 }
 
-export interface ContentMetadata {
-  title?: string;
-  fileName?: string;
-  fileType?: string;
-  source: string;
-}
-
 export type ContentResult =
-  | { success: true; content: string; metadata: ContentMetadata }
+  | { success: true; content: string }
   | { success: false; error: string; errorType: ErrorType };
 
 export interface ContentProvider {

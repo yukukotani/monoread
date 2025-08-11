@@ -55,9 +55,6 @@ export function createReadabilityProvider(): ContentProvider {
         return {
           success: true,
           content: content.trim(),
-          metadata: {
-            source: url,
-          },
         };
       } catch (error) {
         logger.debug(

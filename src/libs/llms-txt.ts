@@ -155,10 +155,6 @@ export async function extractContentFromLlmsTxt(
     return {
       success: true,
       content: content.trim(),
-      metadata: {
-        source: originalUrl,
-        fileType: "llms-txt",
-      },
     };
   } catch (error) {
     logger.warn(

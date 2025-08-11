@@ -13,9 +13,6 @@ describe("read_url_contentツール", () => {
       const mockResult: ContentResult = {
         success: true,
         content: mockContent,
-        metadata: {
-          source: "https://example.com",
-        },
       };
 
       mockedExtractContent.mockResolvedValue(mockResult);
@@ -31,11 +28,6 @@ describe("read_url_contentツール", () => {
       const mockResult: ContentResult = {
         success: true,
         content: mockContent,
-        metadata: {
-          source: "https://github.com/user/repo",
-          fileName: "README.md",
-          fileType: "markdown",
-        },
       };
 
       mockedExtractContent.mockResolvedValue(mockResult);

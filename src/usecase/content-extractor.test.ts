@@ -33,7 +33,6 @@ const mockSuccessProvider: ContentProvider = {
   extractContent: async () => ({
     success: true,
     content: "Mock content",
-    metadata: { source: "test-url" },
   }),
 };
 
@@ -65,7 +64,6 @@ describe("extractContent", () => {
 
     assert(result.success);
     assert(result.content === "Mock content");
-    assert(result.metadata?.source === "test-url");
   });
 
   it("最初のプロバイダが失敗した場合、次のプロバイダを試す", async () => {
@@ -141,7 +139,6 @@ describe("Content extraction fallback integration", () => {
       result.content ===
         "# Readability Content\\n\\nThis is extracted by readability.",
     );
-    assert(result.metadata?.source === "https://example.com/page");
   });
 
   it("should fallback to llms.txt when readability fails (empty content)", async () => {
@@ -168,10 +165,6 @@ describe("Content extraction fallback integration", () => {
     mockExtractContentFromLlmsTxt.mockResolvedValue({
       success: true,
       content: "# LLMS.txt Content\\n\\nThis is from llms.txt fallback.",
-      metadata: {
-        source: "https://example.com/page",
-        fileType: "llms-txt",
-      },
     });
 
     const result = await extractContent("https://example.com/page");
@@ -182,8 +175,6 @@ describe("Content extraction fallback integration", () => {
         result.content ===
           "# LLMS.txt Content\\n\\nThis is from llms.txt fallback.",
       );
-      assert(result.metadata?.source === "https://example.com/page");
-      assert(result.metadata?.fileType === "llms-txt");
     }
   });
 
@@ -211,10 +202,6 @@ describe("Content extraction fallback integration", () => {
       success: true,
       content:
         "# LLMS.txt Fallback\\n\\nThis content was retrieved after readability failed.",
-      metadata: {
-        source: "https://example.com/page",
-        fileType: "llms-txt",
-      },
     });
 
     const result = await extractContent("https://example.com/page");
@@ -225,8 +212,6 @@ describe("Content extraction fallback integration", () => {
         result.content ===
           "# LLMS.txt Fallback\\n\\nThis content was retrieved after readability failed.",
       );
-      assert(result.metadata?.source === "https://example.com/page");
-      assert(result.metadata?.fileType === "llms-txt");
     }
   });
 
@@ -245,10 +230,6 @@ describe("Content extraction fallback integration", () => {
       success: true,
       content:
         "# LLMS.txt Success\\n\\nContent from llms.txt when page is not found.",
-      metadata: {
-        source: "https://example.com/missing-page",
-        fileType: "llms-txt",
-      },
     });
 
     const result = await extractContent("https://example.com/missing-page");
@@ -259,8 +240,6 @@ describe("Content extraction fallback integration", () => {
         result.content ===
           "# LLMS.txt Success\\n\\nContent from llms.txt when page is not found.",
       );
-      assert(result.metadata?.source === "https://example.com/missing-page");
-      assert(result.metadata?.fileType === "llms-txt");
     }
   });
 

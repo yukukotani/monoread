@@ -82,21 +82,9 @@ export const createGithubProvider = (): ContentProvider => {
           };
         }
 
-        const pathParts = urlInfo.path.split("/");
-        const fileName = pathParts[pathParts.length - 1] || "";
-        const fileParts = fileName.split(".");
-        const fileType =
-          fileParts.length > 1 ? fileParts[fileParts.length - 1] || "" : "";
-
         return {
           success: true,
           content,
-          metadata: {
-            fileName,
-            fileType,
-            source: url,
-            title: `${urlInfo.owner}/${urlInfo.repo}: ${urlInfo.path}`,
-          },
         };
       } catch (error) {
         return {
