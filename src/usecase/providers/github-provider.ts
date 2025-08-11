@@ -35,7 +35,7 @@ export const createGithubProvider = (): ContentProvider => {
         const response = await fetch(apiUrl, {
           headers: {
             Accept: "application/vnd.github.raw+json",
-            "User-Agent": "monoread/1.0.0",
+            "User-Agent": "yukukotani/monoread",
           },
         });
 
