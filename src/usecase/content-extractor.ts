@@ -18,8 +18,6 @@ export async function extractContent(url: string): Promise<ContentResult> {
     "Starting content extraction",
   );
 
-  let lastFailedResult: ContentResult | null = null;
-
   // 各プロバイダを順番に試行（フォールバック機能）
   for (const provider of PROVIDERS) {
     // canHandleがfalseの場合はスキップ
@@ -31,37 +29,21 @@ export async function extractContent(url: string): Promise<ContentResult> {
       continue;
     }
 
-    logger.debug({ provider: provider.name, url }, "Trying provider");
     const result = await provider.extractContent(url);
 
-    if (result.success) {
-      logger.info(
-        {
-          provider: provider.name,
-          url,
-          contentLength: result.content.length,
-        },
-        "Provider succeeded",
-      );
-      return result;
-    }
-
     logger.debug(
-      { provider: provider.name, url, error: result.error },
-      "Provider failed, trying next provider",
+      { provider: provider.name, url, result: result.success },
+      "Provider executed",
     );
 
-    // 失敗した結果を記録（最後のプロバイダのエラーを返すため）
-    lastFailedResult = result;
+    if (result.success) {
+      return result;
+    }
   }
 
-  // すべてのプロバイダが失敗した場合、最後のプロバイダのエラーを返す
-  logger.warn({ url }, "All providers failed");
-  return (
-    lastFailedResult || {
-      success: false,
-      error: "No providers available for this URL",
-      errorType: "unknown",
-    }
-  );
+  return {
+    success: false,
+    error: "No providers available for this URL",
+    errorType: "unknown",
+  };
 }
