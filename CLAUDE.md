@@ -1,47 +1,54 @@
-# TypeScript Template
+# CLAUDE.md
 
-This is a TypeScript template for a project for Coding AI Agent.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Conversation Rules
+## Project Overview
 
-- You MUST respond in Japanese.
+monoread is a CLI tool and MCP server for reading web page content in AI-optimized format. It provides high-quality content extraction using Mozilla Readability and llms.txt standards.
 
-## Coding Rules
+## Development Commands
 
-### Small, frequent commits
+- `pnpm dev`: Run in development mode
+- `pnpm build`: Build for production
+- `pnpm test` / `pnpm test:watch` / `pnpm test:coverage`: Run tests
+- `pnpm lint`: Run all linting (Biome + TypeScript)
+- `pnpm fix`: Fix linting issues automatically
+- `pnpm mcp` / `pnpm mcp:debug`: Run as MCP server
 
-- You MUST commit your changes in small, frequent increments after completing each task.
-- You MUST commit each individual task separately. For example, if there are 3 tasks (A, B, C), create 3 separate commits instead of 1 combined commit.
-- You MUST mark each todo as completed immediately after committing the changes for that specific task.
-- You MUST run `pnpm lint` and ensure it passes before committing any changes.
-- You MUST write commit messages and comments in Japanese.
+## Architecture
 
-### Test-Driven Development
+### Layered Architecture
+- **Presentation Layer** (`src/presentation/`): CLI (gunshi) and MCP server
+- **Use Case Layer** (`src/usecase/`): Business logic and content providers
+- **Libs** (`src/libs/`): Domain-independent utilities
 
-- You MUST follow t-wada's Test-Driven Development. Create failing tests first, then make them pass.
-- You MUST put test files in the same directory as the source files.
+### Content Provider System
+Multi-provider fallback system: `GithubProvider` → `ReadabilityProvider` → `LlmsTxtProvider` → `HttpProvider`. Each implements `ContentProvider` interface with `canHandle()` and `extractContent()` methods.
 
-### Functional Programming
+## Development Rules
 
-- You MUST use function instead of class.
-- You MUST use tagged union to represent errors instead of throwing errors.
+### Core Principles
+- **Language**: TypeScript with strict type checking
+- **Paradigm**: Functional programming (functions over classes)
+- **Error Handling**: Tagged unions instead of throwing errors
+- **Conversation**: You MUST respond in Japanese
+- **Comments**: You MUST NOT keep descriptions of changes in code
 
-### Comment
+### Testing (TDD)
+- Follow t-wada's Test-Driven Development
+- Create failing tests first, then make them pass
+- Test files in same directory as source files (`.test.ts` extension)
+- Tech: vitest, power-assert-monorepo
 
-- You MUST NOT keep descriptions of changes in the code.
+### Commit Workflow
+- Small, frequent commits per task
+- Run `pnpm lint` before each commit
+- Write commit messages in Japanese
+- Mark todos completed immediately after committing
 
-## Tech Stack
+### Directory Structure
+You MUST follow this structure and ask user before adding new directories under `src/`:
 
-- Language: TypeScript
-- Package Manager: pnpm
-- Test: vitest, power-assert-monorepo
-- Linter, Formatter: Biome
-
-## Directory Structure
-
-You MUST follow the following directory structure. You MUST ask user to add new directory under `src/` directory.
-
-- `src/`
-  - `presentation/`: Presentation layer, such as CLI handler.
-  - `usecase/`: Usecase layer.
-  - `libs/`: Logics that is not depends on domain.
+- `src/presentation/`: CLI and MCP server implementations
+- `src/usecase/`: Business logic and providers
+- `src/libs/`: Domain-independent utilities
