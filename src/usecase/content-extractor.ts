@@ -1,3 +1,7 @@
+import {
+  extractContentFromLlmsTxt,
+  isReadabilityResultEmpty,
+} from "../libs/llms-txt.js";
 import { createLogger } from "../libs/logger.js";
 import { extractContentByReadability } from "../libs/readability.js";
 import type { ContentProvider, ContentResult } from "../libs/types.js";
@@ -45,7 +49,7 @@ export async function extractContent(url: string): Promise<ContentResult> {
     );
   }
 
-  // フォールバックとして@mizchi/readabilityを直接使用
+  // フォールバックとして@mizchi/readabilityを使用
   logger.info({ url }, "Falling back to readability extraction");
 
   try {
@@ -61,22 +65,16 @@ export async function extractContent(url: string): Promise<ContentResult> {
         "Fallback fetch failed",
       );
 
-      return {
-        success: false,
-        error: `Failed to fetch URL: ${response.status} ${response.statusText}`,
-        errorType: response.status === 404 ? "not_found" : "network",
-      };
+      // readabilityが失敗した場合、llms.txtフォールバックを試行
+      logger.debug({ url }, "readability failed, trying llms.txt fallback");
+      return await extractContentFromLlmsTxt(url);
     }
 
     const content = await extractContentByReadability(url);
 
-    if (!content || content.trim().length === 0) {
-      logger.warn({ url }, "No content could be extracted from page");
-      return {
-        success: false,
-        error: "No content could be extracted from the page",
-        errorType: "unknown",
-      };
+    if (isReadabilityResultEmpty(content)) {
+      logger.debug({ url }, "readability failed, trying llms.txt fallback");
+      return await extractContentFromLlmsTxt(url);
     }
 
     logger.info(
@@ -95,20 +93,15 @@ export async function extractContent(url: string): Promise<ContentResult> {
       },
     };
   } catch (error) {
-    logger.error(
+    logger.debug(
       {
         url,
         error: error instanceof Error ? error.message : String(error),
       },
-      "Readability extraction failed",
+      "readability failed, trying llms.txt fallback",
     );
 
-    return {
-      success: false,
-      error: `Failed to extract content: ${
-        error instanceof Error ? error.message : String(error)
-      }`,
-      errorType: "network",
-    };
+    // readabilityが例外をスローした場合、llms.txtフォールバックを試行
+    return await extractContentFromLlmsTxt(url);
   }
 }

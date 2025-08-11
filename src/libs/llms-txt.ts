@@ -1,0 +1,187 @@
+/**
+ * llms.txt URL生成ユーティリティ
+ * 元のURLからllms.txtファイルのURLを生成します
+ */
+export function generateLlmsTxtUrl(originalUrl: string): string | null {
+  try {
+    const url = new URL(originalUrl);
+
+    // search params と hash を除去
+    url.search = "";
+    url.hash = "";
+
+    let pathname = url.pathname;
+
+    // パスが / で終わらない場合、ディレクトリパスに変換
+    if (!pathname.endsWith("/")) {
+      // ファイル名を含むパスの場合は、最後のセグメントを削除してディレクトリにする
+      const pathSegments = pathname.split("/");
+      const lastSegment = pathSegments[pathSegments.length - 1];
+
+      // 拡張子がある場合（ファイル）は、そのセグメントを削除
+      if (lastSegment.includes(".")) {
+        pathSegments.pop();
+        pathname = pathSegments.join("/");
+        if (!pathname.endsWith("/")) {
+          pathname += "/";
+        }
+      } else {
+        // ディレクトリの場合は / を追加
+        pathname += "/";
+      }
+    }
+
+    // llms.txt を追加
+    const llmsTxtUrl = `${url.protocol}//${url.host}${pathname}llms.txt`;
+    return llmsTxtUrl;
+  } catch (_error) {
+    return null;
+  }
+}
+
+/**
+ * readability結果が空または無効かどうかを判定します
+ */
+export function isReadabilityResultEmpty(content: string): boolean {
+  return !content || content.trim().length === 0;
+}
+
+/**
+ * llms.txtコンテンツが有効かどうかを判定します
+ */
+export function isValidLlmsTxtContent(content: string): boolean {
+  if (!content || content.trim().length === 0) {
+    return false;
+  }
+
+  // HTMLタグが含まれていないかチェック（基本的なチェック）
+  if (/<[^>]+>/g.test(content)) {
+    return false;
+  }
+
+  // 最低限のコンテンツ長をチェック
+  if (content.trim().length < 10) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * llms.txtからコンテンツを抽出します
+ */
+export async function extractContentFromLlmsTxt(
+  originalUrl: string,
+): Promise<import("./types.js").ContentResult> {
+  const { createLogger } = await import("./logger.js");
+  const logger = createLogger("llms-txt-extractor");
+
+  // llms.txt URLを生成
+  const llmsTxtUrl = generateLlmsTxtUrl(originalUrl);
+  if (!llmsTxtUrl) {
+    logger.debug({ originalUrl }, "Invalid URL for llms.txt generation");
+    return {
+      success: false,
+      error: "Invalid URL for llms.txt generation",
+      errorType: "invalid_url",
+    };
+  }
+
+  logger.debug({ llmsTxtUrl, originalUrl }, "Trying llms.txt fallback");
+
+  try {
+    const response = await fetch(llmsTxtUrl);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        logger.debug({ llmsTxtUrl, originalUrl }, "llms.txt not found (404)");
+        return {
+          success: false,
+          error: "llms.txt not found",
+          errorType: "not_found",
+        };
+      }
+
+      if (response.status === 401 || response.status === 403) {
+        logger.warn(
+          { llmsTxtUrl, originalUrl, status: response.status },
+          "llms.txt access denied",
+        );
+        return {
+          success: false,
+          error: `Access denied to llms.txt: ${response.status}`,
+          errorType: "auth",
+        };
+      }
+
+      if (response.status >= 500) {
+        logger.warn(
+          { llmsTxtUrl, originalUrl, status: response.status },
+          "llms.txt server error",
+        );
+        return {
+          success: false,
+          error: `Server error accessing llms.txt: ${response.status}`,
+          errorType: "network",
+        };
+      }
+
+      logger.warn(
+        { llmsTxtUrl, originalUrl, status: response.status },
+        "llms.txt fallback failed",
+      );
+      return {
+        success: false,
+        error: `HTTP ${response.status} when accessing llms.txt`,
+        errorType: "network",
+      };
+    }
+
+    const content = await response.text();
+
+    if (!isValidLlmsTxtContent(content)) {
+      logger.debug(
+        { llmsTxtUrl, originalUrl, contentLength: content.length },
+        "Invalid llms.txt content",
+      );
+      return {
+        success: false,
+        error: "llms.txt contains invalid or empty content",
+        errorType: "unknown",
+      };
+    }
+
+    logger.info(
+      {
+        llmsTxtUrl,
+        originalUrl,
+        contentLength: content.length,
+      },
+      "llms.txt extraction successful",
+    );
+
+    return {
+      success: true,
+      content: content.trim(),
+      metadata: {
+        source: originalUrl,
+        fileType: "llms-txt",
+      },
+    };
+  } catch (error) {
+    logger.warn(
+      {
+        llmsTxtUrl,
+        originalUrl,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      "llms.txt fallback failed",
+    );
+
+    return {
+      success: false,
+      error: `Failed to fetch llms.txt: ${error instanceof Error ? error.message : String(error)}`,
+      errorType: "network",
+    };
+  }
+}
