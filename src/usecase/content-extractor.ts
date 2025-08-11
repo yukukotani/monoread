@@ -45,7 +45,7 @@ export async function extractContent(url: string): Promise<ContentResult> {
 
   return {
     success: false,
-    error: "No providers available for this URL",
+    error: "Failed to extract content",
     errorType: "unknown",
   };
 }
