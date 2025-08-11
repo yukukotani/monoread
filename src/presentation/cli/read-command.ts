@@ -14,6 +14,11 @@ export const readCommand = define({
       description: "URL to read",
       required: true,
     },
+    silent: {
+      type: "boolean",
+      description: "Extract content but do not output the result",
+      default: false,
+    },
   },
   run: async (ctx) => {
     const logger = createLogger("read-command");
@@ -29,7 +34,9 @@ export const readCommand = define({
 
     if (result.success) {
       logger.info({ url }, "Content extracted successfully");
-      ctx.log(result.content);
+      if (!ctx.values.silent) {
+        ctx.log(result.content);
+      }
     } else {
       logger.error({ url }, "Failed to extract content");
     }

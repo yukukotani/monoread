@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import type { ContentProvider, ContentResult } from "../libs/types.js";
-import { extractContent } from "./content-extractor.js";
+import { extractContent } from "./extract-content.js";
 
 // テスト用のextractContent関数（プロバイダの配列を受け取る）
 async function extractContentWithProviders(
