@@ -125,18 +125,18 @@ describe("isValidLlmsTxtContent", () => {
     expect(isValidLlmsTxtContent("   \n\t   ")).toBe(false);
   });
 
-  it("should return false for content with HTML tags", () => {
-    expect(isValidLlmsTxtContent("<div>Hello World</div>")).toBe(false);
+  it("should return true for content with HTML tags", () => {
+    expect(isValidLlmsTxtContent("<div>Hello World</div>")).toBe(true);
   });
 
-  it("should return false for content with script tags", () => {
+  it("should return true for content with script tags", () => {
     expect(isValidLlmsTxtContent("<script>alert('hello')</script>")).toBe(
-      false,
+      true,
     );
   });
 
-  it("should return false for content shorter than 10 characters", () => {
-    expect(isValidLlmsTxtContent("short")).toBe(false);
+  it("should return true for short content", () => {
+    expect(isValidLlmsTxtContent("short")).toBe(true);
   });
 
   it("should return true for valid Markdown content", () => {
@@ -157,8 +157,8 @@ describe("isValidLlmsTxtContent", () => {
     ).toBe(true);
   });
 
-  it("should return false for content with self-closing HTML tags", () => {
-    expect(isValidLlmsTxtContent("Content with <br/> tag")).toBe(false);
+  it("should return true for content with self-closing HTML tags", () => {
+    expect(isValidLlmsTxtContent("Content with <br/> tag")).toBe(true);
   });
 
   it("should return true for content with angle brackets in text", () => {
@@ -262,7 +262,7 @@ describe("extractContentFromLlmsTxt", () => {
     }
   });
 
-  it("should fail when llms.txt content has HTML tags", async () => {
+  it("should succeed when llms.txt content has HTML tags", async () => {
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
@@ -271,10 +271,11 @@ describe("extractContentFromLlmsTxt", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
     
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.errorType).toBe("unknown");
-      expect(result.error).toBe("llms.txt contains invalid or empty content");
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.content).toBe("<div>This is HTML content</div>");
+      expect(result.metadata.source).toBe("https://example.com/page");
+      expect(result.metadata.fileType).toBe("llms-txt");
     }
   });
 
@@ -368,7 +369,7 @@ describe("extractContentFromLlmsTxt edge cases", () => {
   });
 
   it("should handle mixed content with HTML and markdown", async () => {
-    const mixedContent = "# Valid Markdown\n\n<div>This should fail</div>\n\nMore content";
+    const mixedContent = "# Valid Markdown\n\n<div>This should succeed</div>\n\nMore content";
     
     mockFetch.mockResolvedValue({
       ok: true,
@@ -378,10 +379,11 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
     
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.errorType).toBe("unknown");
-      expect(result.error).toBe("llms.txt contains invalid or empty content");
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.content).toBe(mixedContent.trim());
+      expect(result.metadata.source).toBe("https://example.com/page");
+      expect(result.metadata.fileType).toBe("llms-txt");
     }
   });
 
@@ -467,8 +469,8 @@ describe("extractContentFromLlmsTxt edge cases", () => {
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88/llms.txt");
   });
 
-  it("should handle minimal valid content (exactly 10 characters)", async () => {
-    const minimalContent = "1234567890"; // Exactly 10 characters
+  it("should handle minimal valid content (single character)", async () => {
+    const minimalContent = "a"; // Single character
     
     mockFetch.mockResolvedValue({
       ok: true,
@@ -484,13 +486,13 @@ describe("extractContentFromLlmsTxt edge cases", () => {
     }
   });
 
-  it("should fail with content just below minimum length", async () => {
-    const shortContent = "123456789"; // 9 characters
+  it("should fail with empty content", async () => {
+    const emptyContent = ""; // Empty content
     
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
-      text: async () => shortContent,
+      text: async () => emptyContent,
     });
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");

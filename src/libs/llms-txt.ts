@@ -55,21 +55,8 @@ export function isReadabilityResultEmpty(content: string): boolean {
  * llms.txtコンテンツが有効かどうかを判定します
  */
 export function isValidLlmsTxtContent(content: string): boolean {
-  if (!content || content.trim().length === 0) {
-    return false;
-  }
-
-  // HTMLタグが含まれていないかチェック（より正確なHTMLタグの検出）
-  if (/<[a-zA-Z][^>]*>/g.test(content)) {
-    return false;
-  }
-
-  // 最低限のコンテンツ長をチェック
-  if (content.trim().length < 10) {
-    return false;
-  }
-
-  return true;
+  // 空でなければ有効
+  return content.trim().length > 0;
 }
 
 /**
