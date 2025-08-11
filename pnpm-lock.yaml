@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  gunshi:
-    hash: b2c4fd4875ddcbb885c2d9c6aa63a8b66f76eaeb0624edb7f842701c5cf7fbf0
-    path: patches/gunshi.patch
-
 importers:
 
   .:
@@ -21,7 +16,7 @@ importers:
         version: 1.17.2
       gunshi:
         specifier: 0.27.0-alpha.10
-        version: 0.27.0-alpha.10(patch_hash=b2c4fd4875ddcbb885c2d9c6aa63a8b66f76eaeb0624edb7f842701c5cf7fbf0)
+        version: 0.27.0-alpha.10
       pino:
         specifier: ^9.3.2
         version: 9.8.0
@@ -2399,7 +2394,7 @@ snapshots:
 
   gopd@1.2.0: {}
 
-  gunshi@0.27.0-alpha.10(patch_hash=b2c4fd4875ddcbb885c2d9c6aa63a8b66f76eaeb0624edb7f842701c5cf7fbf0):
+  gunshi@0.27.0-alpha.10:
     dependencies:
       args-tokens: 0.22.6
 
