@@ -7,6 +7,7 @@ import { createReadabilityProvider } from "./providers/readability-provider.js";
 
 const PROVIDERS: ContentProvider[] = [
   createGithubProvider(),
+  // fallbacks
   createReadabilityProvider(),
   createLlmsTxtProvider(),
   createHttpProvider(),
