@@ -4,9 +4,9 @@
 
 ## 機能
 
-- **スマートなコンテンツ抽出**: [@mizchi/readability](https://github.com/mizchi/readability) (Mozilla Readability) ベースで、GitHub blob などの主要サービスに特化した最適化を実装
-- **AI 最適化された出力**: AI 処理に最適なクリーンで構造化されたコンテンツ
-- **MCP サーバー**: AI アシスタント向けの Model Context Protocol サーバーとして動作可能
+- **高品質なコンテンツ抽出**: [@mizchi/readability](https://github.com/mizchi/readability) (Mozilla Readability) と llms.txt 標準により、あらゆる Web コンテンツから信頼性の高い抽出を実現
+- **プロバイダー固有の最適化**: GitHub などの特定プロバイダーに特化したコンテンツ抽出の最適化
+- **MCP サーバー統合**: Model Context Protocol サーバーとしてシームレスに統合し、AI アシスタントが Web コンテンツをインテリジェントに取得・処理することを可能にします
 
 ## インストール
 
