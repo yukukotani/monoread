@@ -22,7 +22,6 @@ async function extractContentWithProviders(
   return {
     success: false,
     error: "No provider could handle the URL",
-    errorType: "network",
   };
 }
 
@@ -42,7 +41,6 @@ const mockFailProvider: ContentProvider = {
   extractContent: async () => ({
     success: false,
     error: "Mock error",
-    errorType: "network",
   }),
 };
 
@@ -52,7 +50,6 @@ const mockNoMatchProvider: ContentProvider = {
   extractContent: async () => ({
     success: false,
     error: "Should not be called",
-    errorType: "unknown",
   }),
 };
 
@@ -93,7 +90,6 @@ describe("extractContent", () => {
     ]);
 
     assert(!result.success);
-    assert(result.errorType === "network");
   });
 });
 
@@ -267,13 +263,11 @@ describe("Content extraction fallback integration", () => {
     mockExtractContentFromLlmsTxt.mockResolvedValue({
       success: false,
       error: "llms.txt not found",
-      errorType: "not_found",
     });
 
     const result = await extractContent("https://example.com/page");
 
     assert(!result.success);
-    assert(result.errorType === "not_found");
     assert(result.error === "llms.txt not found");
   });
 });

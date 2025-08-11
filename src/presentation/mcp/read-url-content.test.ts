@@ -46,7 +46,6 @@ describe("read_url_contentツール", () => {
       const mockResult: ContentResult = {
         success: false,
         error: "Invalid URL format",
-        errorType: "invalid_url",
       };
 
       mockedExtractContent.mockResolvedValue(mockResult);
@@ -61,7 +60,6 @@ describe("read_url_contentツール", () => {
       const mockResult: ContentResult = {
         success: false,
         error: "Failed to fetch URL: 404 Not Found",
-        errorType: "not_found",
       };
 
       mockedExtractContent.mockResolvedValue(mockResult);
@@ -80,7 +78,6 @@ describe("read_url_contentツール", () => {
       const mockResult: ContentResult = {
         success: false,
         error: "Failed to extract content: Network error",
-        errorType: "network",
       };
 
       mockedExtractContent.mockResolvedValue(mockResult);
@@ -95,7 +92,6 @@ describe("read_url_contentツール", () => {
       const mockResult: ContentResult = {
         success: false,
         error: "No content could be extracted from the page",
-        errorType: "unknown",
       };
 
       mockedExtractContent.mockResolvedValue(mockResult);

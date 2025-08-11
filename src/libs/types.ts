@@ -18,7 +18,7 @@ export interface AppError {
 
 export type ContentResult =
   | { success: true; content: string }
-  | { success: false; error: string; errorType: ErrorType };
+  | { success: false; error: string };
 
 export interface ContentProvider {
   name: string;

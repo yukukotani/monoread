@@ -50,7 +50,6 @@ export async function extractContent(url: string): Promise<ContentResult> {
   return {
     success: false,
     error: "Failed to extract content",
-    errorType: "unknown",
   };
 }
 
@@ -70,7 +69,6 @@ async function executeProvider(
       return {
         success: false,
         error: "Empty content",
-        errorType: "unknown",
       };
     }
 
@@ -82,7 +80,6 @@ async function executeProvider(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
-      errorType: "unknown",
     };
   }
 }

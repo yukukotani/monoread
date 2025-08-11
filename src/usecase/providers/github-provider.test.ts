@@ -38,7 +38,6 @@ describe("githubProvider", () => {
       const result = await githubProvider.extractContent("invalid-url");
 
       assert(!result.success);
-      assert(result.errorType === "invalid_url");
     });
   });
 });

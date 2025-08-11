@@ -20,7 +20,6 @@ test("createLlmsTxtProvider extractContent should handle invalid URL", async () 
 
   assert.strictEqual(result.success, false);
   if (!result.success) {
-    assert.strictEqual(result.errorType, "invalid_url");
     assert.strictEqual(result.error, "Invalid URL for llms.txt generation");
   }
 });

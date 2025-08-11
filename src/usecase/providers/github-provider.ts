@@ -25,7 +25,6 @@ export const createGithubProvider = (): ContentProvider => {
           return {
             success: false,
             error: "Invalid GitHub blob URL format",
-            errorType: "invalid_url",
           };
         }
 
@@ -52,7 +51,6 @@ export const createGithubProvider = (): ContentProvider => {
             return {
               success: false,
               error: "GitHub file not found",
-              errorType: "not_found",
             };
           }
 
@@ -60,14 +58,12 @@ export const createGithubProvider = (): ContentProvider => {
             return {
               success: false,
               error: "Access denied. This may be a private repository.",
-              errorType: "auth",
             };
           }
 
           return {
             success: false,
             error: `GitHub API error: ${response.status} ${response.statusText}`,
-            errorType: "network",
           };
         }
 
@@ -78,7 +74,6 @@ export const createGithubProvider = (): ContentProvider => {
           return {
             success: false,
             error: "Invalid GitHub URL: missing file path",
-            errorType: "invalid_url",
           };
         }
 
@@ -90,7 +85,6 @@ export const createGithubProvider = (): ContentProvider => {
         return {
           success: false,
           error: `Failed to fetch GitHub file: ${error instanceof Error ? error.message : String(error)}`,
-          errorType: "network",
         };
       }
     },

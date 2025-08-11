@@ -29,7 +29,6 @@ export function createReadabilityProvider(): ContentProvider {
           return {
             success: false,
             error: `HTTP ${response.status}: ${response.statusText}`,
-            errorType: "network",
           };
         }
 
@@ -40,7 +39,6 @@ export function createReadabilityProvider(): ContentProvider {
           return {
             success: false,
             error: "Empty content extracted from readability",
-            errorType: "unknown",
           };
         }
 
@@ -70,7 +68,6 @@ export function createReadabilityProvider(): ContentProvider {
           error: `Readability extraction failed: ${
             error instanceof Error ? error.message : String(error)
           }`,
-          errorType: "unknown",
         };
       }
     },

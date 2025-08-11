@@ -206,7 +206,6 @@ describe("extractContentFromLlmsTxt", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.errorType).toBe("not_found");
       expect(result.error).toBe("llms.txt not found");
     }
   });
@@ -222,7 +221,6 @@ describe("extractContentFromLlmsTxt", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.errorType).toBe("auth");
       expect(result.error).toBe("Access denied to llms.txt: 403");
     }
   });
@@ -238,7 +236,6 @@ describe("extractContentFromLlmsTxt", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.errorType).toBe("network");
       expect(result.error).toBe("Server error accessing llms.txt: 500");
     }
   });
@@ -254,7 +251,6 @@ describe("extractContentFromLlmsTxt", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.errorType).toBe("unknown");
       expect(result.error).toBe("llms.txt contains invalid or empty content");
     }
   });
@@ -281,7 +277,6 @@ describe("extractContentFromLlmsTxt", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.errorType).toBe("network");
       expect(result.error).toBe("Failed to fetch llms.txt: Network error");
     }
   });
@@ -291,7 +286,6 @@ describe("extractContentFromLlmsTxt", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.errorType).toBe("invalid_url");
       expect(result.error).toBe("Invalid URL for llms.txt generation");
     }
     expect(mockFetch).not.toHaveBeenCalled();
@@ -361,7 +355,6 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.errorType).toBe("unknown");
       expect(result.error).toBe("llms.txt contains invalid or empty content");
     }
   });
@@ -414,7 +407,6 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.errorType).toBe("network");
       expect(result.error).toBe("Failed to fetch llms.txt: fetch timeout");
     }
   });
@@ -430,7 +422,6 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.errorType).toBe("network");
       expect(result.error).toBe("HTTP 302 when accessing llms.txt");
     }
   });
@@ -506,7 +497,6 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.errorType).toBe("unknown");
       expect(result.error).toBe("llms.txt contains invalid or empty content");
     }
   });

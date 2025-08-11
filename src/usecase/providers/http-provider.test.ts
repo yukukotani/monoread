@@ -20,7 +20,6 @@ test("createHttpProvider extractContent should handle invalid URL", async () => 
 
   assert.strictEqual(result.success, false);
   if (!result.success) {
-    assert.strictEqual(result.errorType, "unknown");
     assert.match(result.error, /HTTP extraction failed/);
   }
 });

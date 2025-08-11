@@ -28,7 +28,6 @@ export function createHttpProvider(): ContentProvider {
           return {
             success: false,
             error: `HTTP ${response.status}: ${response.statusText}`,
-            errorType: "network",
           };
         }
 
@@ -39,7 +38,6 @@ export function createHttpProvider(): ContentProvider {
           return {
             success: false,
             error: "Empty content received from HTTP response",
-            errorType: "unknown",
           };
         }
 
@@ -69,7 +67,6 @@ export function createHttpProvider(): ContentProvider {
           error: `HTTP extraction failed: ${
             error instanceof Error ? error.message : String(error)
           }`,
-          errorType: "unknown",
         };
       }
     },

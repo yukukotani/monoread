@@ -75,7 +75,6 @@ export async function extractContentFromLlmsTxt(
     return {
       success: false,
       error: "Invalid URL for llms.txt generation",
-      errorType: "invalid_url",
     };
   }
 
@@ -90,7 +89,6 @@ export async function extractContentFromLlmsTxt(
         return {
           success: false,
           error: "llms.txt not found",
-          errorType: "not_found",
         };
       }
 
@@ -102,7 +100,6 @@ export async function extractContentFromLlmsTxt(
         return {
           success: false,
           error: `Access denied to llms.txt: ${response.status}`,
-          errorType: "auth",
         };
       }
 
@@ -114,7 +111,6 @@ export async function extractContentFromLlmsTxt(
         return {
           success: false,
           error: `Server error accessing llms.txt: ${response.status}`,
-          errorType: "network",
         };
       }
 
@@ -125,7 +121,6 @@ export async function extractContentFromLlmsTxt(
       return {
         success: false,
         error: `HTTP ${response.status} when accessing llms.txt`,
-        errorType: "network",
       };
     }
 
@@ -139,7 +134,6 @@ export async function extractContentFromLlmsTxt(
       return {
         success: false,
         error: "llms.txt contains invalid or empty content",
-        errorType: "unknown",
       };
     }
 
@@ -169,7 +163,6 @@ export async function extractContentFromLlmsTxt(
     return {
       success: false,
       error: `Failed to fetch llms.txt: ${error instanceof Error ? error.message : String(error)}`,
-      errorType: "network",
     };
   }
 }
