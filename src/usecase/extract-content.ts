@@ -22,7 +22,6 @@ export async function extractContent(url: string): Promise<ContentResult> {
 
   // 各プロバイダを順番に試行（フォールバック機能）
   for (const provider of PROVIDERS) {
-    // canHandleがfalseの場合はスキップ
     if (!provider.canHandle(url)) {
       logger.debug(
         { provider: provider.name, url },
