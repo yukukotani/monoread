@@ -5,7 +5,7 @@ import { startMcpServer } from "./server.js";
 
 vi.mock("@modelcontextprotocol/sdk/server/index.js");
 vi.mock("@modelcontextprotocol/sdk/server/stdio.js");
-vi.mock("../../usecase/content-extractor.js");
+vi.mock("../../usecase/extract-content.js");
 
 describe("MCPサーバ", () => {
   let mockServer: any;

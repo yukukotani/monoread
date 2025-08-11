@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ContentResult } from "../../libs/types.js";
-import { extractContent } from "../../usecase/content-extractor.js";
+import { extractContent } from "../../usecase/extract-content.js";
 
-vi.mock("../../usecase/content-extractor.js");
+vi.mock("../../usecase/extract-content.js");
 
 describe("read_url_contentツール", () => {
   const mockedExtractContent = vi.mocked(extractContent);

@@ -1,6 +1,6 @@
 import { define } from "gunshi";
 import { createLogger } from "../../libs/logger.js";
-import { extractContent } from "../../usecase/content-extractor.js";
+import { extractContent } from "../../usecase/extract-content.js";
 import { globalArgs } from "./global-args.js";
 
 export const readCommand = define({
