@@ -22,13 +22,18 @@ export function generateLlmsTxtUrl(originalUrl: string): string | null {
       if (lastSegment.includes(".")) {
         pathSegments.pop();
         pathname = pathSegments.join("/");
-        if (!pathname.endsWith("/")) {
+        if (!pathname.endsWith("/") && pathname !== "") {
           pathname += "/";
         }
       } else {
         // ディレクトリの場合は / を追加
         pathname += "/";
       }
+    }
+
+    // ルートパスの場合は / を確保
+    if (pathname === "" || pathname === "/") {
+      pathname = "/";
     }
 
     // llms.txt を追加
@@ -54,8 +59,8 @@ export function isValidLlmsTxtContent(content: string): boolean {
     return false;
   }
 
-  // HTMLタグが含まれていないかチェック（基本的なチェック）
-  if (/<[^>]+>/g.test(content)) {
+  // HTMLタグが含まれていないかチェック（より正確なHTMLタグの検出）
+  if (/<[a-zA-Z][^>]*>/g.test(content)) {
     return false;
   }
 
