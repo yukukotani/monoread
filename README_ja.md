@@ -46,7 +46,17 @@ monoread read https://github.com/owner/repo/blob/main/README.md
 Claude Code に追加:
 
 ```bash
+# Add to user scope (available across all projects)
 claude mcp add monoread -s user -- npx -y monoread@latest mcp
+
+# Or add to project scope to share with your team
+claude mcp add monoread -s project -- npx -y monoread@latest mcp
+```
+
+その後、次のように CLAUDE.md に追加してください:
+
+```
+Use `mcp__monoread__read_url_content` tool instead of builtin Fetch tool to read web pages.
 ```
 
 ## ライセンス
