@@ -31,9 +31,21 @@ describe("githubProvider", () => {
       }
     });
 
-    it("GitHubのblob/treeURL以外は判定を拒否する", () => {
-      const invalidUrls = [
+    it("GitHubのトップレベルURLを正しく判定できる", () => {
+      const validUrls = [
         "https://github.com/owner/repo",
+        "https://github.com/user/project/",
+        "https://github.com/org/app?tab=readme",
+        "https://github.com/owner/repo?tab=repositories",
+      ];
+
+      for (const url of validUrls) {
+        assert(githubProvider.canHandle(url), `Should handle: ${url}`);
+      }
+    });
+
+    it("GitHub以外のURLは判定を拒否する", () => {
+      const invalidUrls = [
         "https://gitlab.com/owner/repo/blob/main/file.txt",
         "https://example.com/file.txt",
         "invalid-url",

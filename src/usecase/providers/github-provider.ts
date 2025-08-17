@@ -7,7 +7,9 @@ export const createGithubProvider = (): ContentProvider => {
 
     canHandle(url: string): boolean {
       const canHandle =
-        /^https:\/\/github\.com\/[^/]+\/[^/]+\/(blob|tree)\//.test(url);
+        /^https:\/\/github\.com\/[^/]+\/[^/]+(?:\/(blob|tree)\/|\/?\??.*)?$/.test(
+          url,
+        );
       return canHandle;
     },
 
@@ -18,6 +20,12 @@ export const createGithubProvider = (): ContentProvider => {
 
       try {
         const isTreeUrl = url.includes("/tree/");
+        const isBlobUrl = url.includes("/blob/");
+        const isTopLevelUrl = !isTreeUrl && !isBlobUrl;
+
+        if (isTopLevelUrl) {
+          return await extractTopLevelContent(url, logger);
+        }
 
         if (isTreeUrl) {
           return await extractTreeContent(url, logger);
@@ -73,6 +81,19 @@ function parseGitHubTreeUrl(url: string) {
   return { owner, repo, branch, path };
 }
 
+function parseGitHubTopLevelUrl(url: string) {
+  const match = url.match(
+    /^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\/?\??.*)?$/,
+  );
+
+  if (!match) {
+    throw new Error("Invalid GitHub top-level URL format");
+  }
+
+  const [, owner, repo] = match;
+  return { owner, repo };
+}
+
 function convertTreeUrlToApiUrl(treeUrl: string): string | null {
   try {
     const { owner, repo, branch, path } = parseGitHubTreeUrl(treeUrl);
@@ -91,6 +112,147 @@ interface GitHubContentItem {
   url?: string;
   html_url?: string;
   download_url?: string;
+}
+
+interface GitHubRepoInfo {
+  name: string;
+  full_name: string;
+  default_branch: string;
+  description?: string;
+}
+
+async function extractTopLevelContent(
+  url: string,
+  logger: ReturnType<typeof createLogger>,
+): Promise<ContentResult> {
+  try {
+    const { owner, repo } = parseGitHubTopLevelUrl(url);
+
+    const repoApiUrl = `https://api.github.com/repos/${owner}/${repo}`;
+
+    logger.debug({ repoApiUrl }, "Fetching repository info from GitHub API");
+
+    const repoResponse = await fetch(repoApiUrl, {
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "yukukotani/monoread",
+      },
+    });
+
+    if (!repoResponse.ok) {
+      logger.warn(
+        {
+          status: repoResponse.status,
+          statusText: repoResponse.statusText,
+          repoApiUrl,
+        },
+        "GitHub repository API request failed",
+      );
+
+      if (repoResponse.status === 404) {
+        return {
+          success: false,
+          error: "GitHub repository not found",
+        };
+      }
+
+      if (repoResponse.status === 401 || repoResponse.status === 403) {
+        return {
+          success: false,
+          error: "Access denied. This may be a private repository.",
+        };
+      }
+
+      return {
+        success: false,
+        error: `GitHub API error: ${repoResponse.status} ${repoResponse.statusText}`,
+      };
+    }
+
+    const repoInfo = (await repoResponse.json()) as GitHubRepoInfo;
+    const defaultBranch = repoInfo.default_branch;
+
+    const contentsApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents?ref=${defaultBranch}`;
+
+    logger.debug({ contentsApiUrl }, "Fetching contents from GitHub API");
+
+    const contentsResponse = await fetch(contentsApiUrl, {
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "yukukotani/monoread",
+      },
+    });
+
+    if (!contentsResponse.ok) {
+      return {
+        success: false,
+        error: `Failed to fetch repository contents: ${contentsResponse.status} ${contentsResponse.statusText}`,
+      };
+    }
+
+    const items = (await contentsResponse.json()) as GitHubContentItem[];
+
+    const dirs = items
+      .filter((item) => item.type === "dir")
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const files = items
+      .filter((item) => item.type === "file")
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    let content = `<repository>\n${owner}/${repo}\n</repository>\n\n`;
+    if (repoInfo.description) {
+      content += `<description>\n${repoInfo.description}\n</description>\n\n`;
+    }
+    content += `<path>\n/\n</path>\n\n<files>\n`;
+
+    for (const dir of dirs) {
+      content += `📁 ${dir.name}/\n`;
+    }
+
+    for (const file of files) {
+      const size = file.size ? ` (${formatFileSize(file.size)})` : "";
+      content += `📄 ${file.name}${size}\n`;
+    }
+
+    content += "</files>";
+
+    const readmeFile = files.find(
+      (file) =>
+        file.name.toLowerCase() === "readme.md" ||
+        file.name.toLowerCase() === "readme.markdown" ||
+        file.name.toLowerCase() === "readme.txt" ||
+        file.name.toLowerCase() === "readme",
+    );
+
+    if (readmeFile?.download_url) {
+      logger.debug(
+        { readmeUrl: readmeFile.download_url },
+        "Fetching README content",
+      );
+
+      try {
+        const readmeResponse = await fetch(readmeFile.download_url);
+        if (readmeResponse.ok) {
+          const readmeContent = await readmeResponse.text();
+          content += "\n\n<readme>\n";
+          content += readmeContent;
+          content += "\n</readme>";
+        }
+      } catch (error) {
+        logger.warn({ error }, "Failed to fetch README content");
+      }
+    }
+
+    return {
+      success: true,
+      content,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: `Failed to fetch GitHub repository: ${error instanceof Error ? error.message : String(error)}`,
+    };
+  }
 }
 
 async function extractBlobContent(
