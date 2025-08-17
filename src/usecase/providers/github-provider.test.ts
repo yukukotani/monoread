@@ -18,10 +18,22 @@ describe("githubProvider", () => {
       }
     });
 
-    it("GitHubのblobURL以外は判定を拒否する", () => {
+    it("GitHubのtreeURLを正しく判定できる", () => {
+      const validUrls = [
+        "https://github.com/owner/repo/tree/main",
+        "https://github.com/owner/repo/tree/main/src",
+        "https://github.com/user/project/tree/develop/docs",
+        "https://github.com/org/app/tree/feature/branch/lib",
+      ];
+
+      for (const url of validUrls) {
+        assert(githubProvider.canHandle(url), `Should handle: ${url}`);
+      }
+    });
+
+    it("GitHubのblob/treeURL以外は判定を拒否する", () => {
       const invalidUrls = [
         "https://github.com/owner/repo",
-        "https://github.com/owner/repo/tree/main",
         "https://gitlab.com/owner/repo/blob/main/file.txt",
         "https://example.com/file.txt",
         "invalid-url",

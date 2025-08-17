@@ -1,9 +1,9 @@
-import { spawn } from "node:child_process";
+import { type ChildProcess, spawn } from "node:child_process";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 describe("MCP統合テスト", () => {
-  let mcpProcess: any;
+  let mcpProcess: ChildProcess | undefined;
 
   afterEach(() => {
     if (mcpProcess && !mcpProcess.killed) {
@@ -20,7 +20,7 @@ describe("MCP統合テスト", () => {
           env: { ...process.env, LOG_LEVEL: "silent" },
         });
 
-        mcpProcess.stderr.on("data", (data: Buffer) => {
+        mcpProcess.stderr?.on("data", (data: Buffer) => {
           const output = data.toString();
           if (output.includes("error")) {
             reject(new Error(output));
@@ -37,20 +37,20 @@ describe("MCP統合テスト", () => {
       });
 
       await expect(promise).resolves.toBeUndefined();
-      expect(mcpProcess.killed).toBe(false);
+      expect(mcpProcess?.killed).toBe(false);
     });
 
     it("初期化リクエストに応答する", async () => {
       const binPath = join(process.cwd(), "bin", "run.js");
 
-      const promise = new Promise<any>((resolve, reject) => {
+      const promise = new Promise<unknown>((resolve, reject) => {
         mcpProcess = spawn("node", [binPath, "mcp"], {
           env: { ...process.env, LOG_LEVEL: "silent" },
         });
 
         let responseData = "";
 
-        mcpProcess.stdout.on("data", (data: Buffer) => {
+        mcpProcess.stdout?.on("data", (data: Buffer) => {
           responseData += data.toString();
           try {
             const lines = responseData.split("\n");
@@ -65,7 +65,7 @@ describe("MCP統合テスト", () => {
           } catch {}
         });
 
-        mcpProcess.stderr.on("data", (data: Buffer) => {
+        mcpProcess.stderr?.on("data", (data: Buffer) => {
           const output = data.toString();
           if (output.includes("error")) {
             reject(new Error(output));
@@ -86,7 +86,7 @@ describe("MCP統合テスト", () => {
               },
             },
           };
-          mcpProcess.stdin.write(JSON.stringify(initRequest) + "\n");
+          mcpProcess?.stdin?.write(`${JSON.stringify(initRequest)}\n`);
         });
 
         mcpProcess.on("error", reject);
@@ -96,7 +96,11 @@ describe("MCP統合テスト", () => {
         }, 5000);
       });
 
-      const result = await promise;
+      const result = (await promise) as {
+        protocolVersion: string;
+        capabilities: unknown;
+        serverInfo: { name: string; version: string };
+      };
       expect(result).toHaveProperty("protocolVersion");
       expect(result).toHaveProperty("capabilities");
       expect(result.serverInfo).toEqual({
@@ -108,7 +112,7 @@ describe("MCP統合テスト", () => {
     it("ツール一覧リクエストに応答する", async () => {
       const binPath = join(process.cwd(), "bin", "run.js");
 
-      const promise = new Promise<any>((resolve, reject) => {
+      const promise = new Promise<unknown>((resolve, reject) => {
         mcpProcess = spawn("node", [binPath, "mcp"], {
           env: { ...process.env, LOG_LEVEL: "silent" },
         });
@@ -116,7 +120,7 @@ describe("MCP統合テスト", () => {
         let responseData = "";
         let initialized = false;
 
-        mcpProcess.stdout.on("data", (data: Buffer) => {
+        mcpProcess.stdout?.on("data", (data: Buffer) => {
           responseData += data.toString();
           try {
             const lines = responseData.split("\n");
@@ -131,7 +135,7 @@ describe("MCP統合テスト", () => {
                     method: "tools/list",
                     params: {},
                   };
-                  mcpProcess.stdin.write(JSON.stringify(toolsRequest) + "\n");
+                  mcpProcess?.stdin?.write(`${JSON.stringify(toolsRequest)}\n`);
                 } else if (json.id === 2 && json.result) {
                   resolve(json.result);
                 }
@@ -154,7 +158,7 @@ describe("MCP統合テスト", () => {
               },
             },
           };
-          mcpProcess.stdin.write(JSON.stringify(initRequest) + "\n");
+          mcpProcess?.stdin?.write(`${JSON.stringify(initRequest)}\n`);
         });
 
         mcpProcess.on("error", reject);
@@ -164,7 +168,13 @@ describe("MCP統合テスト", () => {
         }, 5000);
       });
 
-      const result = await promise;
+      const result = (await promise) as {
+        tools: Array<{
+          name: string;
+          description: string;
+          inputSchema: unknown;
+        }>;
+      };
       expect(result.tools).toHaveLength(1);
       expect(result.tools[0]).toEqual({
         name: "read_url_content",
@@ -192,7 +202,7 @@ describe("MCP統合テスト", () => {
 
         mcpProcess.on("spawn", () => {
           setTimeout(() => {
-            mcpProcess.kill("SIGINT");
+            mcpProcess?.kill("SIGINT");
           }, 100);
         });
 

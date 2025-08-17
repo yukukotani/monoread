@@ -31,7 +31,9 @@ describe("MCPコマンド", () => {
         log: vi.fn(),
       };
 
-      await mcpCommand.run!(mockContext as any);
+      await mcpCommand.run?.(
+        mockContext as unknown as Parameters<typeof mcpCommand.run>[0],
+      );
 
       expect(mockedStartMcpServer).toHaveBeenCalledOnce();
     });
@@ -45,9 +47,11 @@ describe("MCPコマンド", () => {
         log: vi.fn(),
       };
 
-      await expect(mcpCommand.run!(mockContext as any)).rejects.toThrow(
-        "Test error",
-      );
+      await expect(
+        mcpCommand.run?.(
+          mockContext as unknown as Parameters<typeof mcpCommand.run>[0],
+        ),
+      ).rejects.toThrow("Test error");
     });
   });
 });
