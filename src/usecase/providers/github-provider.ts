@@ -232,8 +232,12 @@ async function extractTreeContent(
       .filter((item) => item.type === "file")
       .sort((a, b) => a.name.localeCompare(b.name));
 
-    // ディレクトリ構造を整形
-    let content = "<files>\n";
+    // URLからパス部分を抽出
+    const { owner, repo, path } = parseGitHubTreeUrl(url);
+
+    // リポジトリ情報とパス情報を整形
+    let content = `<repository>\n${owner}/${repo}\n</repository>\n\n`;
+    content += `<path>\n${path ? `/${path}` : "/"}\n</path>\n\n<files>\n`;
 
     // ディレクトリを先に表示
     for (const dir of dirs) {
