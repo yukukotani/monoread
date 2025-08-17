@@ -147,7 +147,7 @@ async function extractBlobContent(
       };
     }
 
-    const content = await response.text();
+    const fileContent = await response.text();
     const urlInfo = parseGitHubUrl(url);
 
     if (!urlInfo.path) {
@@ -156,6 +156,12 @@ async function extractBlobContent(
         error: "Invalid GitHub URL: missing file path",
       };
     }
+
+    const filePath = `/${urlInfo.path}`;
+
+    let content = `<repository>\n${urlInfo.owner}/${urlInfo.repo}\n</repository>\n\n`;
+    content += `<path>\n${filePath}\n</path>\n\n`;
+    content += `<content>\n${fileContent}\n</content>`;
 
     return {
       success: true,
