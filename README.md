@@ -53,6 +53,9 @@ claude mcp add monoread -s user -- npx -y monoread@latest mcp
 
 # Or add to project scope to share with your team
 claude mcp add monoread -s project -- npx -y monoread@latest mcp
+
+# Also you can configure environment variables described below.
+claude mcp add monoread -s user -e NOTION_API_KEY=your-integration-token -- npx -y monoread@latest mcp
 ```
 
 Then add something like this to your CLAUDE.md:
