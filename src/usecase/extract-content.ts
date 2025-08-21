@@ -3,10 +3,12 @@ import type { ContentProvider, ContentResult } from "../libs/types.js";
 import { createGithubProvider } from "./providers/github-provider.js";
 import { createHttpProvider } from "./providers/http-provider.js";
 import { createLlmsTxtProvider } from "./providers/llms-txt-provider.js";
+import { createNotionProvider } from "./providers/notion-provider.js";
 import { createReadabilityProvider } from "./providers/readability-provider.js";
 
 const PROVIDERS: ContentProvider[] = [
   createGithubProvider(),
+  createNotionProvider(),
   // fallbacks
   createReadabilityProvider(),
   createLlmsTxtProvider(),

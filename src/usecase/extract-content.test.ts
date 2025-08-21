@@ -239,7 +239,7 @@ describe("Content extraction fallback integration", () => {
     }
   });
 
-  it("should fail when both readability and llms.txt fail", async () => {
+  it("should return generic error when all providers fail", async () => {
     // readabilityとllms.txt両方が失敗する場合
     const { extractContentByReadability } = await import(
       "../libs/readability.js"
@@ -268,6 +268,6 @@ describe("Content extraction fallback integration", () => {
     const result = await extractContent("https://example.com/page");
 
     assert(!result.success);
-    assert(result.error === "llms.txt not found");
+    assert(result.error === "Failed to extract content");
   });
 });

@@ -61,6 +61,34 @@ Then add something like this to your CLAUDE.md:
 Use `mcp__monoread__read_url_content` tool instead of builtin Fetch tool to read web pages.
 ```
 
+## Providers
+
+monoread uses a multi-provider system to extract content from various sources:
+
+### GitHub
+
+No requirements.
+
+```bash
+monoread read https://github.com/owner/repo/blob/main/README.md
+```
+
+### Notion
+
+Requires setting up the `NOTION_API_KEY` environment variable:
+
+1. Create a Notion integration at [https://www.notion.so/my-integrations](https://www.notion.so/my-integrations)
+2. Copy the Internal Integration Token
+3. Share your Notion pages with the integration:
+   - Open the page in Notion
+   - Click "Share" → "Add people, emails, or integrations"
+   - Select your integration
+4. Set the environment variable:
+   ```bash
+   export NOTION_API_KEY="your-integration-token"
+   monoread read https://notion.so/your-page-id
+   ```
+
 ## License
 
 Apache-2.0 © [Yuku Kotani](mailto:yukukotani@gmail.com)
