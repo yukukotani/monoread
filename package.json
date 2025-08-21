@@ -32,6 +32,7 @@
   "dependencies": {
     "@mizchi/readability": "^0.7.7",
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "fetch-notion-page": "^0.0.1",
     "gunshi": "0.27.0-alpha.10",
     "pino": "^9.3.2",
     "pino-pretty": "^11.3.0",
@@ -39,8 +40,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
+    "@mizchi/lsmcp": "^0.10.0",
     "@power-assert/runtime": "^0.3.0",
     "@types/node": "^24.2.1",
+    "@typescript/native-preview": "7.0.0-dev.20250821.1",
     "@vitest/coverage-v8": "^3.2.4",
     "rollup-plugin-power-assert": "^0.2.0",
     "tsdown": "^0.14.0",
