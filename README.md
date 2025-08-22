@@ -92,6 +92,12 @@ Requires setting up the `NOTION_API_KEY` environment variable:
    monoread read https://notion.so/your-page-id
    ```
 
+### Other Providers
+
+monoread attempts to extract content using [@mizchi/readability](https://github.com/mizchi/readability) or [llms.txt](https://llmstxt.org/).
+
+Feel free to open pull requests or issues to add more specific provider supports.
+
 ## License
 
 Apache-2.0 © [Yuku Kotani](mailto:yukukotani@gmail.com)
