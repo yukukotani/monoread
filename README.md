@@ -1,5 +1,7 @@
 # monoread
 
+![NPM Version](https://img.shields.io/npm/v/monoread)
+
 [日本語](README_ja.md)
 
 Gives your LLM the context of web pages in the smartest way.
