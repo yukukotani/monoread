@@ -12,40 +12,18 @@ Gives your LLM the context of web pages in the smartest way.
 - **Provider-Specific Optimization**: Specialized content extraction tailored for some providers such as GitHub
 - **MCP Server Integration**: Seamlessly integrates as a Model Context Protocol server, enabling AI assistants to fetch and process web content intelligently
 
-## Installation
-
-### Quick Try
-
-```bash
-npx monoread read https://example.com
-# or
-bunx monoread read https://example.com
-```
-
-### Local Install
-
-```bash
-npm install -g monoread
-monoread read https://example.com
-```
-
 ## Usage
 
-### CLI Mode
-
-#### Read a URL
+### CLI Usage
 
 ```bash
-monoread read https://example.com/article
+# You can read any url
+npx monoread read https://example.com/article
+npx monoread read https://github.com/yukukotani/monoread/blob/main/README.md
+npx monoread read https://notion.so/your-page-id
 ```
 
-#### Read a GitHub file
-
-```bash
-monoread read https://github.com/owner/repo/blob/main/README.md
-```
-
-### MCP Server Mode
+### MCP Usage
 
 Add to Claude Code:
 
@@ -68,7 +46,7 @@ Use `mcp__monoread__read_url_content` tool instead of builtin Fetch tool to read
 
 ## Providers
 
-monoread uses a multi-provider system to extract content from various sources:
+monoread has special supports for some providers:
 
 ### GitHub
 
@@ -102,12 +80,8 @@ Feel free to open pull requests or issues to add more specific provider supports
 
 ## License
 
-Apache-2.0 © [Yuku Kotani](mailto:yukukotani@gmail.com)
+Apache License 2.0
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
-
-## Support
-
-For issues and feature requests, please visit the [GitHub Issues](https://github.com/yukukotani/monoread/issues) page.
