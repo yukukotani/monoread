@@ -1,6 +1,6 @@
 # monoread
 
-![NPM Version](https://img.shields.io/npm/v/monoread)
+![NPM Version](https://img.shields.io/npm/v/monoread?link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fmonoread)
 
 [日本語](README_ja.md)
 
