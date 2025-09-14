@@ -15,7 +15,7 @@ const PROVIDERS: ContentProvider[] = [
   createHttpProvider(),
 ];
 
-export async function extractContent(url: string): Promise<ContentResult> {
+export async function readUrl(url: string): Promise<ContentResult> {
   const logger = createLogger("content-extractor");
 
   logger.info(

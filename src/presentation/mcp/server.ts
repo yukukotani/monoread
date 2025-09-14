@@ -5,7 +5,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-import { extractContent } from "../../usecase/extract-content.js";
+import { readUrl } from "../../usecase/read-url.js";
 
 const ReadUrlSchema = z.object({
   url: z.string().url().describe("The URL to read content from"),
@@ -71,7 +71,7 @@ export async function startMcpServer(): Promise<void> {
       });
 
       try {
-        const result = await extractContent(url);
+        const result = await readUrl(url);
 
         if (result.success) {
           await server.sendLoggingMessage({

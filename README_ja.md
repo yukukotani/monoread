@@ -41,6 +41,24 @@ monoread read https://example.com/article
 monoread read https://github.com/owner/repo/blob/main/README.md
 ```
 
+### ライブラリとしての使用
+
+```typescript
+import { monoread } from 'monoread';
+
+// 基本的な使用方法
+const result = await monoread('https://example.com/article');
+if (result.success) {
+  console.log(result.content);
+  console.log(result.title);
+  console.log(result.url);
+}
+
+// Notionページの場合、NOTION_API_KEY環境変数を設定
+process.env.NOTION_API_KEY = 'your-integration-token';
+const notionResult = await monoread('https://notion.so/your-page-id');
+```
+
 ### MCP サーバーモード
 
 Claude Code に追加:

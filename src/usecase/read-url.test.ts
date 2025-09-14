@@ -1,10 +1,10 @@
 import assert from "node:assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import type { ContentProvider, ContentResult } from "../libs/types.js";
-import { extractContent } from "./extract-content.js";
+import { readUrl } from "./read-url.js";
 
-// テスト用のextractContent関数（プロバイダの配列を受け取る）
-async function extractContentWithProviders(
+// テスト用のreadUrl関数（プロバイダの配列を受け取る）
+async function readUrlWithProviders(
   url: string,
   providers: ContentProvider[],
 ): Promise<ContentResult> {
@@ -53,9 +53,9 @@ const mockNoMatchProvider: ContentProvider = {
   }),
 };
 
-describe("extractContent", () => {
+describe("readUrl", () => {
   it("マッチするプロバイダが成功した場合、その結果を返す", async () => {
-    const result = await extractContentWithProviders("test-url", [
+    const result = await readUrlWithProviders("test-url", [
       mockSuccessProvider,
     ]);
 
@@ -64,7 +64,7 @@ describe("extractContent", () => {
   });
 
   it("最初のプロバイダが失敗した場合、次のプロバイダを試す", async () => {
-    const result = await extractContentWithProviders("test-url", [
+    const result = await readUrlWithProviders("test-url", [
       mockFailProvider,
       mockSuccessProvider,
     ]);
@@ -74,7 +74,7 @@ describe("extractContent", () => {
   });
 
   it("URLにマッチしないプロバイダは呼び出されない", async () => {
-    const result = await extractContentWithProviders("test-url", [
+    const result = await readUrlWithProviders("test-url", [
       mockNoMatchProvider,
       mockSuccessProvider,
     ]);
@@ -85,7 +85,7 @@ describe("extractContent", () => {
 
   it("全てのプロバイダが失敗した場合、フォールバック処理が実行される", async () => {
     // 無効なURLでフォールバック処理をテスト
-    const result = await extractContentWithProviders("invalid-url", [
+    const result = await readUrlWithProviders("invalid-url", [
       mockFailProvider,
     ]);
 
@@ -128,7 +128,7 @@ describe("Content extraction fallback integration", () => {
     );
     mockIsReadabilityResultEmpty.mockReturnValue(false);
 
-    const result = await extractContent("https://example.com/page");
+    const result = await readUrl("https://example.com/page");
 
     assert(result.success);
     assert(
@@ -163,7 +163,7 @@ describe("Content extraction fallback integration", () => {
       content: "# LLMS.txt Content\\n\\nThis is from llms.txt fallback.",
     });
 
-    const result = await extractContent("https://example.com/page");
+    const result = await readUrl("https://example.com/page");
 
     assert(result.success);
     if (result.success) {
@@ -200,7 +200,7 @@ describe("Content extraction fallback integration", () => {
         "# LLMS.txt Fallback\\n\\nThis content was retrieved after readability failed.",
     });
 
-    const result = await extractContent("https://example.com/page");
+    const result = await readUrl("https://example.com/page");
 
     assert(result.success);
     if (result.success) {
@@ -228,7 +228,7 @@ describe("Content extraction fallback integration", () => {
         "# LLMS.txt Success\\n\\nContent from llms.txt when page is not found.",
     });
 
-    const result = await extractContent("https://example.com/missing-page");
+    const result = await readUrl("https://example.com/missing-page");
 
     assert(result.success);
     if (result.success) {
@@ -265,7 +265,7 @@ describe("Content extraction fallback integration", () => {
       error: "llms.txt not found",
     });
 
-    const result = await extractContent("https://example.com/page");
+    const result = await readUrl("https://example.com/page");
 
     assert(!result.success);
     assert(result.error === "Failed to extract content");

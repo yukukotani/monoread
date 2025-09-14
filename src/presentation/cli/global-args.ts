@@ -5,6 +5,5 @@ export const globalArgs = {
     type: "enum",
     description: "Log level",
     choices: ["silent", "trace", "debug", "info", "warn", "error", "fatal"],
-    default: "silent",
   },
 } as const satisfies Args;

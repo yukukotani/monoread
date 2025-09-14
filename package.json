@@ -4,16 +4,22 @@
   "type": "module",
   "description": "CLI tool for reading any URL in AI-optimized format",
   "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
-    "monoread": "./dist/index.js"
+    "monoread": "./dist/cli.js"
   },
+  "files": [
+    "dist",
+    "package.json"
+  ],
   "scripts": {
     "build": "tsdown",
-    "dev": "tsx src/index.ts",
-    "start": "node ./dist/index.js",
-    "mcp": "tsx src/index.ts mcp",
-    "mcp:debug": "LOG_LEVEL=debug tsx src/index.ts mcp",
-    "mcp:inspector": "npx @modelcontextprotocol/inspector@latest tsx src/index.ts mcp",
+    "dev": "tsx src/cli.ts",
+    "start": "node ./dist/cli.js",
+    "mcp": "tsx src/cli.ts mcp",
+    "mcp:debug": "LOG_LEVEL=debug tsx src/cli.ts mcp",
+    "mcp:inspector": "npx @modelcontextprotocol/inspector@latest tsx src/cli.ts mcp",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",

@@ -44,6 +44,24 @@ Then add something like this to your CLAUDE.md:
 Use `mcp__monoread__read_url_content` tool instead of builtin Fetch tool to read web pages.
 ```
 
+### Library Usage
+
+```typescript
+import { monoread } from 'monoread';
+
+// Basic usage
+const result = await monoread('https://example.com/article');
+if (result.success) {
+  console.log(result.content);
+  console.log(result.title);
+  console.log(result.url);
+}
+
+// For Notion pages, set NOTION_API_KEY environment variable
+process.env.NOTION_API_KEY = 'your-integration-token';
+const notionResult = await monoread('https://notion.so/your-page-id');
+```
+
 ## Providers
 
 monoread has special supports for some providers:
