@@ -10,7 +10,7 @@ export type LogLevel =
   | "fatal";
 
 function getLogLevelFromEnv(): LogLevel {
-  const envLevel = process.env.LOG_LEVEL?.toLowerCase();
+  const envLevel = process.env.MONOREAD_LOG_LEVEL?.toLowerCase();
   const validLevels: LogLevel[] = [
     "silent",
     "trace",
@@ -31,18 +31,18 @@ function getLogLevelFromEnv(): LogLevel {
 function createRootLogger(): pino.Logger {
   const logLevel = getLogLevelFromEnv();
 
-  const options: pino.LoggerOptions = {
+  return pino({
     level: logLevel,
-  };
-
-  options.transport = {
-    target: "pino-pretty",
-    options: {
-      colorize: true,
+    transport: {
+      target: "pino-pretty",
+      options: {
+        colorize: false,
+        ignore: "pid,hostname",
+        destination:
+          process.env.MONOREAD_LOG_FILE || "~/.cache/monoread/monoread.log",
+      },
     },
-  };
-
-  return pino(options);
+  });
 }
 
 const rootLogger: pino.Logger = createRootLogger();
