@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ContentResult } from "../../libs/types.js";
-import { extractContent } from "../../usecase/extract-content.js";
+import { readUrl } from "../../usecase/read-url.js";
 
-vi.mock("../../usecase/extract-content.js");
+vi.mock("../../usecase/read-url.js");
 
 describe("read_url_contentツール", () => {
-  const mockedExtractContent = vi.mocked(extractContent);
+  const mockedReadUrl = vi.mocked(readUrl);
 
   describe("正常系", () => {
     it("有効なURLでコンテンツを抽出できる", async () => {
@@ -15,11 +15,11 @@ describe("read_url_contentツール", () => {
         content: mockContent,
       };
 
-      mockedExtractContent.mockResolvedValue(mockResult);
+      mockedReadUrl.mockResolvedValue(mockResult);
 
-      const result = await mockedExtractContent("https://example.com");
+      const result = await mockedReadUrl("https://example.com");
 
-      expect(mockedExtractContent).toHaveBeenCalledWith("https://example.com");
+      expect(mockedReadUrl).toHaveBeenCalledWith("https://example.com");
       expect(result).toEqual(mockResult);
     });
 
@@ -30,11 +30,11 @@ describe("read_url_contentツール", () => {
         content: mockContent,
       };
 
-      mockedExtractContent.mockResolvedValue(mockResult);
+      mockedReadUrl.mockResolvedValue(mockResult);
 
-      const result = await mockedExtractContent("https://github.com/user/repo");
+      const result = await mockedReadUrl("https://github.com/user/repo");
 
-      expect(mockedExtractContent).toHaveBeenCalledWith(
+      expect(mockedReadUrl).toHaveBeenCalledWith(
         "https://github.com/user/repo",
       );
       expect(result).toEqual(mockResult);
@@ -48,11 +48,11 @@ describe("read_url_contentツール", () => {
         error: "Invalid URL format",
       };
 
-      mockedExtractContent.mockResolvedValue(mockResult);
+      mockedReadUrl.mockResolvedValue(mockResult);
 
-      const result = await mockedExtractContent("not-a-valid-url");
+      const result = await mockedReadUrl("not-a-valid-url");
 
-      expect(mockedExtractContent).toHaveBeenCalledWith("not-a-valid-url");
+      expect(mockedReadUrl).toHaveBeenCalledWith("not-a-valid-url");
       expect(result).toEqual(mockResult);
     });
 
@@ -62,13 +62,11 @@ describe("read_url_contentツール", () => {
         error: "Failed to fetch URL: 404 Not Found",
       };
 
-      mockedExtractContent.mockResolvedValue(mockResult);
+      mockedReadUrl.mockResolvedValue(mockResult);
 
-      const result = await mockedExtractContent(
-        "https://example.com/not-found",
-      );
+      const result = await mockedReadUrl("https://example.com/not-found");
 
-      expect(mockedExtractContent).toHaveBeenCalledWith(
+      expect(mockedReadUrl).toHaveBeenCalledWith(
         "https://example.com/not-found",
       );
       expect(result).toEqual(mockResult);
@@ -80,11 +78,11 @@ describe("read_url_contentツール", () => {
         error: "Failed to extract content: Network error",
       };
 
-      mockedExtractContent.mockResolvedValue(mockResult);
+      mockedReadUrl.mockResolvedValue(mockResult);
 
-      const result = await mockedExtractContent("https://example.com");
+      const result = await mockedReadUrl("https://example.com");
 
-      expect(mockedExtractContent).toHaveBeenCalledWith("https://example.com");
+      expect(mockedReadUrl).toHaveBeenCalledWith("https://example.com");
       expect(result).toEqual(mockResult);
     });
 
@@ -94,20 +92,18 @@ describe("read_url_contentツール", () => {
         error: "No content could be extracted from the page",
       };
 
-      mockedExtractContent.mockResolvedValue(mockResult);
+      mockedReadUrl.mockResolvedValue(mockResult);
 
-      const result = await mockedExtractContent("https://example.com/empty");
+      const result = await mockedReadUrl("https://example.com/empty");
 
-      expect(mockedExtractContent).toHaveBeenCalledWith(
-        "https://example.com/empty",
-      );
+      expect(mockedReadUrl).toHaveBeenCalledWith("https://example.com/empty");
       expect(result).toEqual(mockResult);
     });
 
     it("予期しないエラーを処理する", async () => {
-      mockedExtractContent.mockRejectedValue(new Error("Unexpected error"));
+      mockedReadUrl.mockRejectedValue(new Error("Unexpected error"));
 
-      await expect(mockedExtractContent("https://example.com")).rejects.toThrow(
+      await expect(mockedReadUrl("https://example.com")).rejects.toThrow(
         "Unexpected error",
       );
     });

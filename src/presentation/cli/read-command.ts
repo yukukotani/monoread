@@ -1,6 +1,6 @@
 import { define } from "gunshi";
 import { createLogger } from "../../libs/logger.js";
-import { extractContent } from "../../usecase/extract-content.js";
+import { readUrl } from "../../usecase/read-url.js";
 import { globalArgs } from "./global-args.js";
 
 export const readCommand = define({
@@ -30,7 +30,7 @@ export const readCommand = define({
       throw new Error("Invalid URL format");
     }
 
-    const result = await extractContent(url);
+    const result = await readUrl(url);
 
     if (result.success) {
       logger.info({ url }, "Content extracted successfully");

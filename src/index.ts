@@ -1,1 +1,1 @@
-export { extractContent } from "./usecase/extract-content.js";
+export { readUrl } from "./usecase/read-url.js";
