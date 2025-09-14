@@ -23,6 +23,26 @@ npx monoread read https://github.com/yukukotani/monoread/blob/main/README.md
 npx monoread read https://notion.so/your-page-id
 ```
 
+### Library Usage
+
+```typescript
+import { extractContent } from 'monoread';
+
+// Basic usage
+const result = await extractContent('https://example.com/article');
+if (result.isOk()) {
+  console.log(result.value.content);
+  console.log(result.value.title);
+  console.log(result.value.url);
+}
+
+// With Notion API key
+const notionResult = await extractContent(
+  'https://notion.so/your-page-id',
+  { notionApiKey: 'your-integration-token' }
+);
+```
+
 ### MCP Usage
 
 Add to Claude Code:
