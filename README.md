@@ -47,20 +47,19 @@ Use `mcp__monoread__read_url_content` tool instead of builtin Fetch tool to read
 ### Library Usage
 
 ```typescript
-import { extractContent } from "monoread";
+import { monoread } from 'monoread';
 
 // Basic usage
-const result = await extractContent("https://example.com/article");
-if (result.isOk()) {
-  console.log(result.value.content);
-  console.log(result.value.title);
-  console.log(result.value.url);
+const result = await monoread('https://example.com/article');
+if (result.success) {
+  console.log(result.content);
+  console.log(result.title);
+  console.log(result.url);
 }
 
-// With Notion API key
-const notionResult = await extractContent("https://notion.so/your-page-id", {
-  notionApiKey: "your-integration-token",
-});
+// For Notion pages, set NOTION_API_KEY environment variable
+process.env.NOTION_API_KEY = 'your-integration-token';
+const notionResult = await monoread('https://notion.so/your-page-id');
 ```
 
 ## Providers
