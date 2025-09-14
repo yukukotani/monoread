@@ -1,1 +1,1 @@
-export { readUrl } from "./usecase/read-url.js";
+export { readUrl as monoread } from "./usecase/read-url.js";
