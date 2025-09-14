@@ -18,7 +18,8 @@ function createRootLogger(): pino.Logger {
         colorize: false,
         ignore: "pid,hostname",
         destination:
-          process.env.MONOREAD_LOG_FILE || "~/.cache/monoread/monoread.log",
+          process.env.MONOREAD_LOG_FILE ||
+          `${process.env.HOME}/.cache/monoread/monoread.log`,
         mkdir: true,
       },
     },
