@@ -1,5 +1,5 @@
-import { R } from "@praha/byethrow";
 import assert from "node:assert";
+import { R } from "@praha/byethrow";
 import { test } from "vitest";
 import { createLlmsTxtProvider } from "./llms-txt-provider.js";
 

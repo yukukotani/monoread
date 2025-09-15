@@ -1,5 +1,5 @@
-import { R } from "@praha/byethrow";
 import assert from "node:assert";
+import { R } from "@praha/byethrow";
 import { afterEach, describe, it, vi } from "vitest";
 import { createNotionProvider } from "./notion-provider.js";
 
