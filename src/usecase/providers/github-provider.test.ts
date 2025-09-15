@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { R } from "@praha/byethrow";
 import { describe, it } from "vitest";
 import { createGithubProvider } from "./github-provider.js";
 
@@ -61,7 +62,7 @@ describe("githubProvider", () => {
     it("無効なURL形式の場合はエラーを返す", async () => {
       const result = await githubProvider.extractContent("invalid-url");
 
-      assert(!result.success);
+      assert(R.isFailure(result));
     });
   });
 });

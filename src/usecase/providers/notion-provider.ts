@@ -42,12 +42,14 @@ export const createNotionProvider = (): ContentProvider => {
           maxDepth: 10,
         });
 
-        if (result.type === "Error") {
+        if (R.isFailure(result)) {
           logger.error(
             { error: result.error, pageId },
             "Failed to fetch Notion page",
           );
-          return R.fail(`Failed to fetch Notion page: ${result.error}`);
+          return R.fail(
+            `Failed to fetch Notion page: ${JSON.stringify(result.error)}`,
+          );
         }
 
         logger.debug({ pageId }, "Converting Notion page to Markdown");

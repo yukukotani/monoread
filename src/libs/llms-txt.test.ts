@@ -266,7 +266,7 @@ describe("extractContentFromLlmsTxt", () => {
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
     expect(R.isSuccess(result)).toBe(true);
-    if (result.success) {
+    if (R.isSuccess(result)) {
       expect(result.value).toBe("<div>This is HTML content</div>");
     }
   });
@@ -339,9 +339,9 @@ describe("extractContentFromLlmsTxt edge cases", () => {
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
     expect(R.isSuccess(result)).toBe(true);
-    if (result.success) {
+    if (R.isSuccess(result)) {
       expect(result.value).toBe(largeContent.trim());
-      expect(result.content.length).toBeGreaterThan(90000);
+      expect(result.value.length).toBeGreaterThan(90000);
     }
   });
 
@@ -373,7 +373,7 @@ describe("extractContentFromLlmsTxt edge cases", () => {
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
     expect(R.isSuccess(result)).toBe(true);
-    if (result.success) {
+    if (R.isSuccess(result)) {
       expect(result.value).toBe(mixedContent.trim());
     }
   });
@@ -480,7 +480,7 @@ describe("extractContentFromLlmsTxt edge cases", () => {
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
     expect(R.isSuccess(result)).toBe(true);
-    if (result.success) {
+    if (R.isSuccess(result)) {
       expect(result.value).toBe(minimalContent);
     }
   });

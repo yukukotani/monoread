@@ -75,10 +75,7 @@ describe("notionProvider", () => {
 
       const mockMarkdown = "# Test Page\n\nThis is test content.";
 
-      mockFetchNotionPage.mockResolvedValue({
-        type: "Success",
-        value: mockPage,
-      });
+      mockFetchNotionPage.mockResolvedValue(R.succeed(mockPage));
 
       mockConvertPageToMarkdown.mockReturnValue(mockMarkdown);
 
@@ -103,10 +100,9 @@ describe("notionProvider", () => {
     it("fetchNotionPageがエラーを返した場合はエラーを返す", async () => {
       process.env.NOTION_API_KEY = "test-api-key";
 
-      mockFetchNotionPage.mockResolvedValue({
-        type: "Error",
-        error: "Failed to fetch page",
-      });
+      mockFetchNotionPage.mockResolvedValue(
+        R.fail({ kind: "unknown", message: "Failed to fetch page" }),
+      );
 
       const result = await notionProvider.extractContent(
         "https://notion.so/abc123def456",
