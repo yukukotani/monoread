@@ -14,7 +14,7 @@ export interface AppError {
   cause?: Error;
 }
 
-export type ContentResult = Result<string, string>;
+export type ContentResult = Result.Result<string, string>;
 
 export interface ContentProvider {
   name: string;
