@@ -1,3 +1,5 @@
+import { R } from "@praha/byethrow";
+
 /**
  * llms.txt URL生成ユーティリティ
  * 元のURLからllms.txtファイルのURLを生成します
@@ -72,10 +74,7 @@ export async function extractContentFromLlmsTxt(
   const llmsTxtUrl = generateLlmsTxtUrl(originalUrl);
   if (!llmsTxtUrl) {
     logger.debug({ originalUrl }, "Invalid URL for llms.txt generation");
-    return {
-      success: false,
-      error: "Invalid URL for llms.txt generation",
-    };
+    return R.fail("Invalid URL for llms.txt generation");
   }
 
   logger.debug({ llmsTxtUrl, originalUrl }, "Trying llms.txt fallback");
@@ -86,10 +85,7 @@ export async function extractContentFromLlmsTxt(
     if (!response.ok) {
       if (response.status === 404) {
         logger.debug({ llmsTxtUrl, originalUrl }, "llms.txt not found (404)");
-        return {
-          success: false,
-          error: "llms.txt not found",
-        };
+        return R.fail("llms.txt not found");
       }
 
       if (response.status === 401 || response.status === 403) {
@@ -97,10 +93,7 @@ export async function extractContentFromLlmsTxt(
           { llmsTxtUrl, originalUrl, status: response.status },
           "llms.txt access denied",
         );
-        return {
-          success: false,
-          error: `Access denied to llms.txt: ${response.status}`,
-        };
+        return R.fail(`Access denied to llms.txt: ${response.status}`);
       }
 
       if (response.status >= 500) {
@@ -108,20 +101,14 @@ export async function extractContentFromLlmsTxt(
           { llmsTxtUrl, originalUrl, status: response.status },
           "llms.txt server error",
         );
-        return {
-          success: false,
-          error: `Server error accessing llms.txt: ${response.status}`,
-        };
+        return R.fail(`Server error accessing llms.txt: ${response.status}`);
       }
 
       logger.warn(
         { llmsTxtUrl, originalUrl, status: response.status },
         "llms.txt fallback failed",
       );
-      return {
-        success: false,
-        error: `HTTP ${response.status} when accessing llms.txt`,
-      };
+      return R.fail(`HTTP ${response.status} when accessing llms.txt`);
     }
 
     const content = await response.text();
@@ -131,10 +118,7 @@ export async function extractContentFromLlmsTxt(
         { llmsTxtUrl, originalUrl, contentLength: content.length },
         "Invalid llms.txt content",
       );
-      return {
-        success: false,
-        error: "llms.txt contains invalid or empty content",
-      };
+      return R.fail("llms.txt contains invalid or empty content");
     }
 
     logger.info(
@@ -146,10 +130,7 @@ export async function extractContentFromLlmsTxt(
       "llms.txt extraction successful",
     );
 
-    return {
-      success: true,
-      content: content.trim(),
-    };
+    return R.succeed(content.trim());
   } catch (error) {
     logger.warn(
       {
@@ -160,9 +141,8 @@ export async function extractContentFromLlmsTxt(
       "llms.txt fallback failed",
     );
 
-    return {
-      success: false,
-      error: `Failed to fetch llms.txt: ${error instanceof Error ? error.message : String(error)}`,
-    };
+    return R.fail(
+      `Failed to fetch llms.txt: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }

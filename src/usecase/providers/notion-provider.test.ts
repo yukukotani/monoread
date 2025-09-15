@@ -1,3 +1,4 @@
+import { R } from "@praha/byethrow";
 import assert from "node:assert";
 import { afterEach, describe, it, vi } from "vitest";
 import { createNotionProvider } from "./notion-provider.js";
@@ -55,7 +56,7 @@ describe("notionProvider", () => {
         "https://notion.so/abc123def456",
       );
 
-      assert(!result.success);
+      assert(R.isFailure(result));
       assert(result.error.includes("NOTION_API_KEY"));
     });
 
@@ -85,8 +86,8 @@ describe("notionProvider", () => {
         "https://notion.so/abc123def456789012345678901234",
       );
 
-      assert(result.success);
-      assert.strictEqual(result.content, mockMarkdown);
+      assert(R.isSuccess(result));
+      assert.strictEqual(result.value, mockMarkdown);
 
       assert(mockFetchNotionPage.mock.calls.length === 1);
       assert(mockFetchNotionPage.mock.calls[0][0].includes("abc123def456"));
@@ -111,7 +112,7 @@ describe("notionProvider", () => {
         "https://notion.so/abc123def456",
       );
 
-      assert(!result.success);
+      assert(R.isFailure(result));
       assert(result.error.includes("Failed to fetch"));
 
       delete process.env.NOTION_API_KEY;
@@ -122,7 +123,7 @@ describe("notionProvider", () => {
 
       const result = await notionProvider.extractContent("invalid-notion-url");
 
-      assert(!result.success);
+      assert(R.isFailure(result));
       assert(result.error.includes("Invalid Notion URL"));
 
       delete process.env.NOTION_API_KEY;

@@ -1,3 +1,4 @@
+import { R } from "@praha/byethrow";
 import { define } from "gunshi";
 import { createLogger } from "../../libs/logger.js";
 import { readUrl } from "../../usecase/read-url.js";
@@ -32,10 +33,10 @@ export const readCommand = define({
 
     const result = await readUrl(url);
 
-    if (result.success) {
+    if (R.isSuccess(result)) {
       logger.info({ url }, "Content extracted successfully");
       if (!ctx.values.silent) {
-        ctx.log(result.content);
+        ctx.log(result.value);
       }
     } else {
       logger.error({ url }, "Failed to extract content");

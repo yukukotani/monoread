@@ -1,3 +1,4 @@
+import { R } from "@praha/byethrow";
 import assert from "node:assert";
 import { test } from "vitest";
 import { createHttpProvider } from "./http-provider.js";
@@ -18,8 +19,8 @@ test("createHttpProvider extractContent should handle invalid URL", async () => 
   const provider = createHttpProvider();
   const result = await provider.extractContent("invalid-url");
 
-  assert.strictEqual(result.success, false);
-  if (!result.success) {
+  assert(R.isFailure(result));
+  if (R.isFailure(result)) {
     assert.match(result.error, /HTTP extraction failed/);
   }
 });

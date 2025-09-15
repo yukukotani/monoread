@@ -1,6 +1,4 @@
-export type Result<T, E> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+import type { Result } from "@praha/byethrow";
 
 export type ErrorType =
   | "network"
@@ -16,9 +14,7 @@ export interface AppError {
   cause?: Error;
 }
 
-export type ContentResult =
-  | { success: true; content: string }
-  | { success: false; error: string };
+export type ContentResult = Result<string, string>;
 
 export interface ContentProvider {
   name: string;

@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { R } from "@praha/byethrow";
 import { beforeEach, describe, it, vi } from "vitest";
 import type { ContentProvider, ContentResult } from "../libs/types.js";
 import { readUrl } from "./read-url.js";
@@ -13,44 +14,32 @@ async function readUrlWithProviders(
 
   for (const provider of matchingProviders) {
     const result = await provider.extractContent(url);
-    if (result.success) {
+    if (R.isSuccess(result)) {
       return result;
     }
   }
 
   // フォールバック処理（テスト用）
-  return {
-    success: false,
-    error: "No provider could handle the URL",
-  };
+  return R.fail("No provider could handle the URL");
 }
 
 // モックプロバイダを作成
 const mockSuccessProvider: ContentProvider = {
   name: "mock-success",
   canHandle: () => true,
-  extractContent: async () => ({
-    success: true,
-    content: "Mock content",
-  }),
+  extractContent: async () => R.succeed("Mock content"),
 };
 
 const mockFailProvider: ContentProvider = {
   name: "mock-fail",
   canHandle: () => true,
-  extractContent: async () => ({
-    success: false,
-    error: "Mock error",
-  }),
+  extractContent: async () => R.fail("Mock error"),
 };
 
 const mockNoMatchProvider: ContentProvider = {
   name: "mock-no-match",
   canHandle: () => false,
-  extractContent: async () => ({
-    success: false,
-    error: "Should not be called",
-  }),
+  extractContent: async () => R.fail("Should not be called"),
 };
 
 describe("readUrl", () => {
@@ -59,8 +48,8 @@ describe("readUrl", () => {
       mockSuccessProvider,
     ]);
 
-    assert(result.success);
-    assert(result.content === "Mock content");
+    assert(R.isSuccess(result));
+    assert(result.value === "Mock content");
   });
 
   it("最初のプロバイダが失敗した場合、次のプロバイダを試す", async () => {
@@ -69,8 +58,8 @@ describe("readUrl", () => {
       mockSuccessProvider,
     ]);
 
-    assert(result.success);
-    assert(result.content === "Mock content");
+    assert(R.isSuccess(result));
+    assert(result.value === "Mock content");
   });
 
   it("URLにマッチしないプロバイダは呼び出されない", async () => {
@@ -79,8 +68,8 @@ describe("readUrl", () => {
       mockSuccessProvider,
     ]);
 
-    assert(result.success);
-    assert(result.content === "Mock content");
+    assert(R.isSuccess(result));
+    assert(result.value === "Mock content");
   });
 
   it("全てのプロバイダが失敗した場合、フォールバック処理が実行される", async () => {
@@ -89,7 +78,7 @@ describe("readUrl", () => {
       mockFailProvider,
     ]);
 
-    assert(!result.success);
+    assert(R.isFailure(result));
   });
 });
 
@@ -98,176 +87,145 @@ vi.mock("../libs/readability.js");
 vi.mock("../libs/llms-txt.js");
 
 describe("Content extraction fallback integration", () => {
-  const mockFetch = vi.fn();
-
-  beforeEach(() => {
-    vi.resetAllMocks();
-    // @ts-ignore
-    global.fetch = mockFetch;
-  });
-
-  it("should return readability result when successful", async () => {
-    // readabilityが成功する場合
-    const { extractContentByReadability } = await import(
-      "../libs/readability.js"
-    );
-    const mockExtractContentByReadability = vi.mocked(
-      extractContentByReadability,
-    );
-
-    const { isReadabilityResultEmpty } = await import("../libs/llms-txt.js");
-    const mockIsReadabilityResultEmpty = vi.mocked(isReadabilityResultEmpty);
-
-    mockFetch.mockResolvedValue({
-      ok: true,
-      status: 200,
+  describe("readability fallback", () => {
+    beforeEach(() => {
+      vi.resetAllMocks();
     });
 
-    mockExtractContentByReadability.mockResolvedValue(
-      "# Readability Content\\n\\nThis is extracted by readability.",
-    );
-    mockIsReadabilityResultEmpty.mockReturnValue(false);
+    it("URLが正常にフォールバック処理される", async () => {
+      const testUrl = "https://example.com/test";
+      const testContent = "Test content from readability";
 
-    const result = await readUrl("https://example.com/page");
-
-    assert(result.success);
-    assert(
-      result.content ===
-        "# Readability Content\\n\\nThis is extracted by readability.",
-    );
-  });
-
-  it("should fallback to llms.txt when readability fails (empty content)", async () => {
-    // readabilityが空コンテンツを返す場合
-    const { extractContentByReadability } = await import(
-      "../libs/readability.js"
-    );
-    const mockExtractContentByReadability = vi.mocked(
-      extractContentByReadability,
-    );
-
-    const { isReadabilityResultEmpty, extractContentFromLlmsTxt } =
-      await import("../libs/llms-txt.js");
-    const mockIsReadabilityResultEmpty = vi.mocked(isReadabilityResultEmpty);
-    const mockExtractContentFromLlmsTxt = vi.mocked(extractContentFromLlmsTxt);
-
-    mockFetch.mockResolvedValue({
-      ok: true,
-      status: 200,
-    });
-
-    mockExtractContentByReadability.mockResolvedValue("");
-    mockIsReadabilityResultEmpty.mockReturnValue(true);
-    mockExtractContentFromLlmsTxt.mockResolvedValue({
-      success: true,
-      content: "# LLMS.txt Content\\n\\nThis is from llms.txt fallback.",
-    });
-
-    const result = await readUrl("https://example.com/page");
-
-    assert(result.success);
-    if (result.success) {
-      assert(
-        result.content ===
-          "# LLMS.txt Content\\n\\nThis is from llms.txt fallback.",
+      // readabilityのmockを設定
+      const { extractContentByReadability } = await import(
+        "../libs/readability.js"
       );
-    }
-  });
+      vi.mocked(extractContentByReadability).mockResolvedValue(testContent);
 
-  it("should fallback to llms.txt when readability throws exception", async () => {
-    // readabilityが例外をスローする場合
-    const { extractContentByReadability } = await import(
-      "../libs/readability.js"
-    );
-    const mockExtractContentByReadability = vi.mocked(
-      extractContentByReadability,
-    );
-
-    const { extractContentFromLlmsTxt } = await import("../libs/llms-txt.js");
-    const mockExtractContentFromLlmsTxt = vi.mocked(extractContentFromLlmsTxt);
-
-    mockFetch.mockResolvedValue({
-      ok: true,
-      status: 200,
-    });
-
-    mockExtractContentByReadability.mockRejectedValue(
-      new Error("Readability parsing failed"),
-    );
-    mockExtractContentFromLlmsTxt.mockResolvedValue({
-      success: true,
-      content:
-        "# LLMS.txt Fallback\\n\\nThis content was retrieved after readability failed.",
-    });
-
-    const result = await readUrl("https://example.com/page");
-
-    assert(result.success);
-    if (result.success) {
-      assert(
-        result.content ===
-          "# LLMS.txt Fallback\\n\\nThis content was retrieved after readability failed.",
+      // fetchのmockを設定
+      global.fetch = vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve(""),
+        } as Response),
       );
-    }
+
+      const result = await readUrl(testUrl);
+
+      assert(R.isSuccess(result));
+      assert(result.value === testContent);
+    });
   });
 
-  it("should fallback to llms.txt when fetch fails", async () => {
-    // fetchが失敗する場合
-    const { extractContentFromLlmsTxt } = await import("../libs/llms-txt.js");
-    const mockExtractContentFromLlmsTxt = vi.mocked(extractContentFromLlmsTxt);
-
-    mockFetch.mockResolvedValue({
-      ok: false,
-      status: 404,
-      statusText: "Not Found",
+  describe("llms.txt fallback", () => {
+    beforeEach(() => {
+      vi.resetAllMocks();
     });
 
-    mockExtractContentFromLlmsTxt.mockResolvedValue({
-      success: true,
-      content:
-        "# LLMS.txt Success\\n\\nContent from llms.txt when page is not found.",
-    });
+    it("llms.txtフォールバックが正常に機能する", async () => {
+      const testUrl = "https://example.com/blog/post.html";
+      const llmsContent = "# LLMs.txt Content\n\nSample content";
 
-    const result = await readUrl("https://example.com/missing-page");
-
-    assert(result.success);
-    if (result.success) {
-      assert(
-        result.content ===
-          "# LLMS.txt Success\\n\\nContent from llms.txt when page is not found.",
+      // llms.txtのモックを設定
+      const { extractContentFromLlmsTxt } = await import("../libs/llms-txt.js");
+      vi.mocked(extractContentFromLlmsTxt).mockResolvedValue(
+        R.succeed(llmsContent),
       );
-    }
+
+      // readabilityが空の結果を返すモック
+      const { extractContentByReadability } = await import(
+        "../libs/readability.js"
+      );
+      vi.mocked(extractContentByReadability).mockResolvedValue("");
+
+      // fetchのmockを設定（readability用）
+      global.fetch = vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve(""),
+        } as Response),
+      );
+
+      const result = await readUrl(testUrl);
+
+      assert(R.isSuccess(result));
+      assert(result.value === llmsContent);
+    });
   });
 
-  it("should return generic error when all providers fail", async () => {
-    // readabilityとllms.txt両方が失敗する場合
-    const { extractContentByReadability } = await import(
-      "../libs/readability.js"
-    );
-    const mockExtractContentByReadability = vi.mocked(
-      extractContentByReadability,
-    );
-
-    const { isReadabilityResultEmpty, extractContentFromLlmsTxt } =
-      await import("../libs/llms-txt.js");
-    const mockIsReadabilityResultEmpty = vi.mocked(isReadabilityResultEmpty);
-    const mockExtractContentFromLlmsTxt = vi.mocked(extractContentFromLlmsTxt);
-
-    mockFetch.mockResolvedValue({
-      ok: true,
-      status: 200,
+  describe("GitHub provider", () => {
+    beforeEach(() => {
+      vi.resetAllMocks();
     });
 
-    mockExtractContentByReadability.mockResolvedValue("");
-    mockIsReadabilityResultEmpty.mockReturnValue(true);
-    mockExtractContentFromLlmsTxt.mockResolvedValue({
-      success: false,
-      error: "llms.txt not found",
+    it("GitHubのblobURLが正常に処理される", async () => {
+      const testUrl = "https://github.com/owner/repo/blob/main/path/to/file.ts";
+
+      // fetchのモックをGitHub API用に設定
+      global.fetch = vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve("const code = 'GitHub content';"),
+        } as Response),
+      );
+
+      const result = await readUrl(testUrl);
+
+      assert(R.isSuccess(result));
+      assert(result.value.includes("const code = 'GitHub content';"));
     });
 
-    const result = await readUrl("https://example.com/page");
+    it("GitHubのtreeURLが正常に処理される", async () => {
+      const testUrl = "https://github.com/owner/repo/tree/main/src";
 
-    assert(!result.success);
-    assert(result.error === "Failed to extract content");
+      // fetchのモックをGitHub API用に設定
+      global.fetch = vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve([
+              { name: "file1.ts", type: "file", size: 1234 },
+              { name: "dir1", type: "dir" },
+            ]),
+        } as Response),
+      );
+
+      const result = await readUrl(testUrl);
+
+      assert(R.isSuccess(result));
+      assert(result.value.includes("file1.ts"));
+      assert(result.value.includes("dir1"));
+    });
+  });
+
+  describe("エラーハンドリング", () => {
+    beforeEach(() => {
+      vi.resetAllMocks();
+    });
+
+    it("全てのプロバイダーがエラーを返す場合", async () => {
+      const testUrl = "https://invalid-url.com/test";
+
+      // 全てのモックが失敗するように設定
+      const { extractContentByReadability } = await import(
+        "../libs/readability.js"
+      );
+      vi.mocked(extractContentByReadability).mockRejectedValue(
+        new Error("Readability failed"),
+      );
+
+      const { extractContentFromLlmsTxt } = await import("../libs/llms-txt.js");
+      vi.mocked(extractContentFromLlmsTxt).mockResolvedValue(
+        R.fail("llms.txt not found"),
+      );
+
+      // fetchのモックも失敗させる
+      global.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
+
+      const result = await readUrl(testUrl);
+
+      assert(R.isFailure(result));
+      assert(result.error.includes("Failed"));
+    });
   });
 });

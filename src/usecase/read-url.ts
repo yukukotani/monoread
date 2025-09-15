@@ -1,3 +1,4 @@
+import { R } from "@praha/byethrow";
 import { createLogger } from "../libs/logger.js";
 import type { ContentProvider, ContentResult } from "../libs/types.js";
 import { createGithubProvider } from "./providers/github-provider.js";
@@ -36,11 +37,11 @@ export async function readUrl(url: string): Promise<ContentResult> {
     const result = await executeProvider(provider, url);
 
     logger.debug(
-      { provider: provider.name, url, result: result.success },
+      { provider: provider.name, url, result: R.isSuccess(result) },
       "Provider executed",
     );
 
-    if (result.success) {
+    if (R.isSuccess(result)) {
       logger.info(
         { provider: provider.name, url },
         "Content extracted successfully",
@@ -49,10 +50,7 @@ export async function readUrl(url: string): Promise<ContentResult> {
     }
   }
 
-  return {
-    success: false,
-    error: "Failed to extract content",
-  };
+  return R.fail("Failed to extract content");
 }
 
 async function executeProvider(
@@ -62,26 +60,17 @@ async function executeProvider(
   try {
     const result = await provider.extractContent(url);
 
-    if (!result.success) {
+    if (R.isFailure(result)) {
       return result;
     }
 
-    const trimmedContent = result.content.trim();
+    const trimmedContent = result.value.trim();
     if (trimmedContent.length === 0) {
-      return {
-        success: false,
-        error: "Empty content",
-      };
+      return R.fail("Empty content");
     }
 
-    return {
-      success: true,
-      content: trimmedContent,
-    };
+    return R.succeed(trimmedContent);
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
+    return R.fail(error instanceof Error ? error.message : "Unknown error");
   }
 }
