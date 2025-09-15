@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { R } from "@praha/byethrow";
 import { afterEach, describe, it, vi } from "vitest";
 import { createNotionProvider } from "./notion-provider.js";
 
@@ -55,7 +56,7 @@ describe("notionProvider", () => {
         "https://notion.so/abc123def456",
       );
 
-      assert(!result.success);
+      assert(R.isFailure(result));
       assert(result.error.includes("NOTION_API_KEY"));
     });
 
@@ -74,10 +75,7 @@ describe("notionProvider", () => {
 
       const mockMarkdown = "# Test Page\n\nThis is test content.";
 
-      mockFetchNotionPage.mockResolvedValue({
-        type: "Success",
-        value: mockPage,
-      });
+      mockFetchNotionPage.mockResolvedValue(R.succeed(mockPage));
 
       mockConvertPageToMarkdown.mockReturnValue(mockMarkdown);
 
@@ -85,8 +83,8 @@ describe("notionProvider", () => {
         "https://notion.so/abc123def456789012345678901234",
       );
 
-      assert(result.success);
-      assert.strictEqual(result.content, mockMarkdown);
+      assert(R.isSuccess(result));
+      assert.strictEqual(result.value, mockMarkdown);
 
       assert(mockFetchNotionPage.mock.calls.length === 1);
       assert(mockFetchNotionPage.mock.calls[0][0].includes("abc123def456"));
@@ -102,16 +100,15 @@ describe("notionProvider", () => {
     it("fetchNotionPageがエラーを返した場合はエラーを返す", async () => {
       process.env.NOTION_API_KEY = "test-api-key";
 
-      mockFetchNotionPage.mockResolvedValue({
-        type: "Error",
-        error: "Failed to fetch page",
-      });
+      mockFetchNotionPage.mockResolvedValue(
+        R.fail({ kind: "unknown", message: "Failed to fetch page" }),
+      );
 
       const result = await notionProvider.extractContent(
         "https://notion.so/abc123def456",
       );
 
-      assert(!result.success);
+      assert(R.isFailure(result));
       assert(result.error.includes("Failed to fetch"));
 
       delete process.env.NOTION_API_KEY;
@@ -122,7 +119,7 @@ describe("notionProvider", () => {
 
       const result = await notionProvider.extractContent("invalid-notion-url");
 
-      assert(!result.success);
+      assert(R.isFailure(result));
       assert(result.error.includes("Invalid Notion URL"));
 
       delete process.env.NOTION_API_KEY;

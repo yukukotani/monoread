@@ -10,6 +10,12 @@
         "tsgo"
       ],
       "env": {}
+    },
+    "byethrow": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": ["@praha/byethrow-mcp"],
+      "env": {}
     }
   }
 }

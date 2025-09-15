@@ -1,3 +1,4 @@
+import { R } from "@praha/byethrow";
 import { createLogger } from "../../libs/logger.js";
 import type { ContentProvider, ContentResult } from "../../libs/types.js";
 
@@ -25,20 +26,14 @@ export function createHttpProvider(): ContentProvider {
             "HTTP fetch failed",
           );
 
-          return {
-            success: false,
-            error: `HTTP ${response.status}: ${response.statusText}`,
-          };
+          return R.fail(`HTTP ${response.status}: ${response.statusText}`);
         }
 
         const content = await response.text();
 
         if (!content || content.trim().length === 0) {
           logger.debug({ url }, "Empty content received");
-          return {
-            success: false,
-            error: "Empty content received from HTTP response",
-          };
+          return R.fail("Empty content received from HTTP response");
         }
 
         logger.info(
@@ -49,10 +44,7 @@ export function createHttpProvider(): ContentProvider {
           "HTTP extraction successful",
         );
 
-        return {
-          success: true,
-          content: content.trim(),
-        };
+        return R.succeed(content.trim());
       } catch (error) {
         logger.debug(
           {
@@ -62,12 +54,11 @@ export function createHttpProvider(): ContentProvider {
           "HTTP extraction failed",
         );
 
-        return {
-          success: false,
-          error: `HTTP extraction failed: ${
+        return R.fail(
+          `HTTP extraction failed: ${
             error instanceof Error ? error.message : String(error)
           }`,
-        };
+        );
       }
     },
   };

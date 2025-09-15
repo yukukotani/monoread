@@ -1,3 +1,4 @@
+import { R } from "@praha/byethrow";
 import { createLogger } from "../../libs/logger.js";
 import type { ContentProvider, ContentResult } from "../../libs/types.js";
 
@@ -33,10 +34,9 @@ export const createGithubProvider = (): ContentProvider => {
 
         return await extractBlobContent(url, logger);
       } catch (error) {
-        return {
-          success: false,
-          error: `Failed to fetch GitHub content: ${error instanceof Error ? error.message : String(error)}`,
-        };
+        return R.fail(
+          `Failed to fetch GitHub content: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     },
   };
@@ -150,23 +150,16 @@ async function extractTopLevelContent(
       );
 
       if (repoResponse.status === 404) {
-        return {
-          success: false,
-          error: "GitHub repository not found",
-        };
+        return R.fail("GitHub repository not found");
       }
 
       if (repoResponse.status === 401 || repoResponse.status === 403) {
-        return {
-          success: false,
-          error: "Access denied. This may be a private repository.",
-        };
+        return R.fail("Access denied. This may be a private repository.");
       }
 
-      return {
-        success: false,
-        error: `GitHub API error: ${repoResponse.status} ${repoResponse.statusText}`,
-      };
+      return R.fail(
+        `GitHub API error: ${repoResponse.status} ${repoResponse.statusText}`,
+      );
     }
 
     const repoInfo = (await repoResponse.json()) as GitHubRepoInfo;
@@ -184,10 +177,9 @@ async function extractTopLevelContent(
     });
 
     if (!contentsResponse.ok) {
-      return {
-        success: false,
-        error: `Failed to fetch repository contents: ${contentsResponse.status} ${contentsResponse.statusText}`,
-      };
+      return R.fail(
+        `Failed to fetch repository contents: ${contentsResponse.status} ${contentsResponse.statusText}`,
+      );
     }
 
     const items = (await contentsResponse.json()) as GitHubContentItem[];
@@ -243,15 +235,11 @@ async function extractTopLevelContent(
       }
     }
 
-    return {
-      success: true,
-      content,
-    };
+    return R.succeed(content);
   } catch (error) {
-    return {
-      success: false,
-      error: `Failed to fetch GitHub repository: ${error instanceof Error ? error.message : String(error)}`,
-    };
+    return R.fail(
+      `Failed to fetch GitHub repository: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -260,14 +248,10 @@ async function extractBlobContent(
   logger: ReturnType<typeof createLogger>,
 ): Promise<ContentResult> {
   try {
-    // GitHubのblobURLをAPIのパスに変換
     const apiUrl = convertBlobUrlToApiUrl(url);
 
     if (!apiUrl) {
-      return {
-        success: false,
-        error: "Invalid GitHub blob URL format",
-      };
+      return R.fail("Invalid GitHub blob URL format");
     }
 
     logger.debug({ apiUrl }, "Fetching from GitHub API");
@@ -290,33 +274,23 @@ async function extractBlobContent(
       );
 
       if (response.status === 404) {
-        return {
-          success: false,
-          error: "GitHub file not found",
-        };
+        return R.fail("GitHub file not found");
       }
 
       if (response.status === 401 || response.status === 403) {
-        return {
-          success: false,
-          error: "Access denied. This may be a private repository.",
-        };
+        return R.fail("Access denied. This may be a private repository.");
       }
 
-      return {
-        success: false,
-        error: `GitHub API error: ${response.status} ${response.statusText}`,
-      };
+      return R.fail(
+        `GitHub API error: ${response.status} ${response.statusText}`,
+      );
     }
 
     const fileContent = await response.text();
     const urlInfo = parseGitHubUrl(url);
 
     if (!urlInfo.path) {
-      return {
-        success: false,
-        error: "Invalid GitHub URL: missing file path",
-      };
+      return R.fail("Invalid GitHub URL: missing file path");
     }
 
     const filePath = `/${urlInfo.path}`;
@@ -325,15 +299,11 @@ async function extractBlobContent(
     content += `<path>\n${filePath}\n</path>\n\n`;
     content += `<content>\n${fileContent}\n</content>`;
 
-    return {
-      success: true,
-      content,
-    };
+    return R.succeed(content);
   } catch (error) {
-    return {
-      success: false,
-      error: `Failed to fetch GitHub file: ${error instanceof Error ? error.message : String(error)}`,
-    };
+    return R.fail(
+      `Failed to fetch GitHub file: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -345,10 +315,7 @@ async function extractTreeContent(
     const apiUrl = convertTreeUrlToApiUrl(url);
 
     if (!apiUrl) {
-      return {
-        success: false,
-        error: "Invalid GitHub tree URL format",
-      };
+      return R.fail("Invalid GitHub tree URL format");
     }
 
     logger.debug({ apiUrl }, "Fetching directory contents from GitHub API");
@@ -371,28 +338,20 @@ async function extractTreeContent(
       );
 
       if (response.status === 404) {
-        return {
-          success: false,
-          error: "GitHub directory not found",
-        };
+        return R.fail("GitHub directory not found");
       }
 
       if (response.status === 401 || response.status === 403) {
-        return {
-          success: false,
-          error: "Access denied. This may be a private repository.",
-        };
+        return R.fail("Access denied. This may be a private repository.");
       }
 
-      return {
-        success: false,
-        error: `GitHub API error: ${response.status} ${response.statusText}`,
-      };
+      return R.fail(
+        `GitHub API error: ${response.status} ${response.statusText}`,
+      );
     }
 
     const items = (await response.json()) as GitHubContentItem[];
 
-    // ファイルとディレクトリを分けてソート
     const dirs = items
       .filter((item) => item.type === "dir")
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -400,19 +359,15 @@ async function extractTreeContent(
       .filter((item) => item.type === "file")
       .sort((a, b) => a.name.localeCompare(b.name));
 
-    // URLからパス部分を抽出
     const { owner, repo, path } = parseGitHubTreeUrl(url);
 
-    // リポジトリ情報とパス情報を整形
     let content = `<repository>\n${owner}/${repo}\n</repository>\n\n`;
     content += `<path>\n${path ? `/${path}` : "/"}\n</path>\n\n<files>\n`;
 
-    // ディレクトリを先に表示
     for (const dir of dirs) {
       content += `📁 ${dir.name}/\n`;
     }
 
-    // ファイルを表示
     for (const file of files) {
       const size = file.size ? ` (${formatFileSize(file.size)})` : "";
       content += `📄 ${file.name}${size}\n`;
@@ -420,7 +375,6 @@ async function extractTreeContent(
 
     content += "</files>";
 
-    // READMEファイルがある場合は内容を取得
     const readmeFile = files.find(
       (file) =>
         file.name.toLowerCase() === "readme.md" ||
@@ -448,15 +402,11 @@ async function extractTreeContent(
       }
     }
 
-    return {
-      success: true,
-      content,
-    };
+    return R.succeed(content);
   } catch (error) {
-    return {
-      success: false,
-      error: `Failed to fetch GitHub directory: ${error instanceof Error ? error.message : String(error)}`,
-    };
+    return R.fail(
+      `Failed to fetch GitHub directory: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 

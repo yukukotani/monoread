@@ -1,3 +1,4 @@
+import { R } from "@praha/byethrow";
 import { createLogger } from "../../libs/logger.js";
 import { extractContentByReadability } from "../../libs/readability.js";
 import type { ContentProvider, ContentResult } from "../../libs/types.js";
@@ -26,20 +27,14 @@ export function createReadabilityProvider(): ContentProvider {
             "Fetch failed",
           );
 
-          return {
-            success: false,
-            error: `HTTP ${response.status}: ${response.statusText}`,
-          };
+          return R.fail(`HTTP ${response.status}: ${response.statusText}`);
         }
 
         const content = await extractContentByReadability(url);
 
         if (!content || content.trim().length === 0) {
           logger.debug({ url }, "Empty content extracted");
-          return {
-            success: false,
-            error: "Empty content extracted from readability",
-          };
+          return R.fail("Empty content extracted from readability");
         }
 
         logger.info(
@@ -50,10 +45,7 @@ export function createReadabilityProvider(): ContentProvider {
           "Readability extraction successful",
         );
 
-        return {
-          success: true,
-          content: content.trim(),
-        };
+        return R.succeed(content.trim());
       } catch (error) {
         logger.debug(
           {
@@ -63,12 +55,11 @@ export function createReadabilityProvider(): ContentProvider {
           "Readability extraction failed",
         );
 
-        return {
-          success: false,
-          error: `Readability extraction failed: ${
+        return R.fail(
+          `Readability extraction failed: ${
             error instanceof Error ? error.message : String(error)
           }`,
-        };
+        );
       }
     },
   };

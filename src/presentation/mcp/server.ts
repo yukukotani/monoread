@@ -4,6 +4,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import { R } from "@praha/byethrow";
 import { z } from "zod";
 import { readUrl } from "../../usecase/read-url.js";
 
@@ -73,7 +74,7 @@ export async function startMcpServer(): Promise<void> {
       try {
         const result = await readUrl(url);
 
-        if (result.success) {
+        if (R.isSuccess(result)) {
           await server.sendLoggingMessage({
             level: "debug",
             data: `Content extraction successful for URL: ${url}`,
@@ -82,7 +83,7 @@ export async function startMcpServer(): Promise<void> {
             content: [
               {
                 type: "text",
-                text: result.content,
+                text: result.value,
               },
             ],
           };

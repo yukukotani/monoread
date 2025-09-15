@@ -1,3 +1,4 @@
+import { R } from "@praha/byethrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   extractContentFromLlmsTxt,
@@ -188,9 +189,9 @@ describe("extractContentFromLlmsTxt", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.content).toBe(mockContent);
+    expect(R.isSuccess(result)).toBe(true);
+    if (R.isSuccess(result)) {
+      expect(result.value).toBe(mockContent);
     }
     expect(mockFetch).toHaveBeenCalledWith("https://example.com/page/llms.txt");
   });
@@ -204,8 +205,8 @@ describe("extractContentFromLlmsTxt", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
+    expect(R.isFailure(result)).toBe(true);
+    if (R.isFailure(result)) {
       expect(result.error).toBe("llms.txt not found");
     }
   });
@@ -219,8 +220,8 @@ describe("extractContentFromLlmsTxt", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
+    expect(R.isFailure(result)).toBe(true);
+    if (R.isFailure(result)) {
       expect(result.error).toBe("Access denied to llms.txt: 403");
     }
   });
@@ -234,8 +235,8 @@ describe("extractContentFromLlmsTxt", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
+    expect(R.isFailure(result)).toBe(true);
+    if (R.isFailure(result)) {
       expect(result.error).toBe("Server error accessing llms.txt: 500");
     }
   });
@@ -249,8 +250,8 @@ describe("extractContentFromLlmsTxt", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
+    expect(R.isFailure(result)).toBe(true);
+    if (R.isFailure(result)) {
       expect(result.error).toBe("llms.txt contains invalid or empty content");
     }
   });
@@ -264,9 +265,9 @@ describe("extractContentFromLlmsTxt", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.content).toBe("<div>This is HTML content</div>");
+    expect(R.isSuccess(result)).toBe(true);
+    if (R.isSuccess(result)) {
+      expect(result.value).toBe("<div>This is HTML content</div>");
     }
   });
 
@@ -275,8 +276,8 @@ describe("extractContentFromLlmsTxt", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
+    expect(R.isFailure(result)).toBe(true);
+    if (R.isFailure(result)) {
       expect(result.error).toBe("Failed to fetch llms.txt: Network error");
     }
   });
@@ -284,8 +285,8 @@ describe("extractContentFromLlmsTxt", () => {
   it("should fail when URL is invalid for llms.txt generation", async () => {
     const result = await extractContentFromLlmsTxt("invalid-url");
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
+    expect(R.isFailure(result)).toBe(true);
+    if (R.isFailure(result)) {
       expect(result.error).toBe("Invalid URL for llms.txt generation");
     }
     expect(mockFetch).not.toHaveBeenCalled();
@@ -305,9 +306,9 @@ describe("extractContentFromLlmsTxt", () => {
       "https://docs.example.com/guide/intro#section",
     );
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.content).toBe(mockContent);
+    expect(R.isSuccess(result)).toBe(true);
+    if (R.isSuccess(result)) {
+      expect(result.value).toBe(mockContent);
     }
     expect(mockFetch).toHaveBeenCalledWith(
       "https://docs.example.com/guide/intro/llms.txt",
@@ -337,10 +338,10 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.content).toBe(largeContent.trim());
-      expect(result.content.length).toBeGreaterThan(90000);
+    expect(R.isSuccess(result)).toBe(true);
+    if (R.isSuccess(result)) {
+      expect(result.value).toBe(largeContent.trim());
+      expect(result.value.length).toBeGreaterThan(90000);
     }
   });
 
@@ -353,8 +354,8 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
+    expect(R.isFailure(result)).toBe(true);
+    if (R.isFailure(result)) {
       expect(result.error).toBe("llms.txt contains invalid or empty content");
     }
   });
@@ -371,9 +372,9 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.content).toBe(mixedContent.trim());
+    expect(R.isSuccess(result)).toBe(true);
+    if (R.isSuccess(result)) {
+      expect(result.value).toBe(mixedContent.trim());
     }
   });
 
@@ -391,9 +392,9 @@ describe("extractContentFromLlmsTxt edge cases", () => {
       "https://api.example.com/v1/docs/reference/auth.html?section=oauth#bearer-tokens",
     );
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.content).toBe(mockContent);
+    expect(R.isSuccess(result)).toBe(true);
+    if (R.isSuccess(result)) {
+      expect(result.value).toBe(mockContent);
     }
     expect(mockFetch).toHaveBeenCalledWith(
       "https://api.example.com/v1/docs/reference/llms.txt",
@@ -405,8 +406,8 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
+    expect(R.isFailure(result)).toBe(true);
+    if (R.isFailure(result)) {
       expect(result.error).toBe("Failed to fetch llms.txt: fetch timeout");
     }
   });
@@ -420,8 +421,8 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
+    expect(R.isFailure(result)).toBe(true);
+    if (R.isFailure(result)) {
       expect(result.error).toBe("HTTP 302 when accessing llms.txt");
     }
   });
@@ -440,7 +441,7 @@ describe("extractContentFromLlmsTxt edge cases", () => {
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
     // コンテンツが有効な長さなので成功するが、実際のユースケースではこのようなコンテンツは問題を引き起こす可能性がある
-    expect(result.success).toBe(true);
+    expect(R.isSuccess(result)).toBe(true);
   });
 
   it("should handle URL with unusual characters", async () => {
@@ -458,9 +459,9 @@ describe("extractContentFromLlmsTxt edge cases", () => {
       "https://example.com/ドキュメント/ガイド.html",
     );
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.content).toBe(mockContent);
+    expect(R.isSuccess(result)).toBe(true);
+    if (R.isSuccess(result)) {
+      expect(result.value).toBe(mockContent);
     }
     expect(mockFetch).toHaveBeenCalledWith(
       "https://example.com/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88/llms.txt",
@@ -478,9 +479,9 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.content).toBe(minimalContent);
+    expect(R.isSuccess(result)).toBe(true);
+    if (R.isSuccess(result)) {
+      expect(result.value).toBe(minimalContent);
     }
   });
 
@@ -495,8 +496,8 @@ describe("extractContentFromLlmsTxt edge cases", () => {
 
     const result = await extractContentFromLlmsTxt("https://example.com/page");
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
+    expect(R.isFailure(result)).toBe(true);
+    if (R.isFailure(result)) {
       expect(result.error).toBe("llms.txt contains invalid or empty content");
     }
   });

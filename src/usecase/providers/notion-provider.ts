@@ -1,3 +1,4 @@
+import { R } from "@praha/byethrow";
 import { convertPageToMarkdown, fetchNotionPage } from "fetch-notion-page";
 import { createLogger } from "../../libs/logger.js";
 import type { ContentProvider, ContentResult } from "../../libs/types.js";
@@ -20,21 +21,18 @@ export const createNotionProvider = (): ContentProvider => {
 
         if (!apiKey) {
           logger.warn("NOTION_API_KEY environment variable is not set");
-          return {
-            success: false,
-            error:
-              "NOTION_API_KEY environment variable is required for Notion pages. Please set it and try again.",
-          };
+          return R.fail(
+            "NOTION_API_KEY environment variable is required for Notion pages. Please set it and try again.",
+          );
         }
 
         const pageId = extractPageIdFromUrl(url);
 
         if (!pageId) {
           logger.warn({ url }, "Failed to extract page ID from Notion URL");
-          return {
-            success: false,
-            error: "Invalid Notion URL format. Could not extract page ID.",
-          };
+          return R.fail(
+            "Invalid Notion URL format. Could not extract page ID.",
+          );
         }
 
         logger.debug({ pageId }, "Fetching Notion page");
@@ -44,15 +42,14 @@ export const createNotionProvider = (): ContentProvider => {
           maxDepth: 10,
         });
 
-        if (result.type === "Error") {
+        if (R.isFailure(result)) {
           logger.error(
             { error: result.error, pageId },
             "Failed to fetch Notion page",
           );
-          return {
-            success: false,
-            error: `Failed to fetch Notion page: ${result.error}`,
-          };
+          return R.fail(
+            `Failed to fetch Notion page: ${JSON.stringify(result.error)}`,
+          );
         }
 
         logger.debug({ pageId }, "Converting Notion page to Markdown");
@@ -61,10 +58,7 @@ export const createNotionProvider = (): ContentProvider => {
 
         if (!markdown || markdown.trim().length === 0) {
           logger.warn({ pageId }, "Notion page returned empty content");
-          return {
-            success: false,
-            error: "Notion page has no content",
-          };
+          return R.fail("Notion page has no content");
         }
 
         logger.info(
@@ -72,18 +66,14 @@ export const createNotionProvider = (): ContentProvider => {
           "Successfully extracted Notion content",
         );
 
-        return {
-          success: true,
-          content: markdown,
-        };
+        return R.succeed(markdown);
       } catch (error) {
         logger.error({ error, url }, "Unexpected error in Notion provider");
-        return {
-          success: false,
-          error: `Failed to extract Notion content: ${
+        return R.fail(
+          `Failed to extract Notion content: ${
             error instanceof Error ? error.message : String(error)
           }`,
-        };
+        );
       }
     },
   };

@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { R } from "@praha/byethrow";
 import { test } from "vitest";
 import { createReadabilityProvider } from "./readability-provider.js";
 
@@ -18,8 +19,8 @@ test("createReadabilityProvider extractContent should handle invalid URL", async
   const provider = createReadabilityProvider();
   const result = await provider.extractContent("invalid-url");
 
-  assert.strictEqual(result.success, false);
-  if (!result.success) {
+  assert(R.isFailure(result));
+  if (R.isFailure(result)) {
     assert.match(result.error, /Readability extraction failed/);
   }
 });
