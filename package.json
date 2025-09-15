@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@mizchi/readability": "^0.7.7",
-    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.18.0",
     "@praha/byethrow": "^0.7.0",
     "fetch-notion-page": "^0.0.1",
     "gunshi": "0.27.0-alpha.10",
