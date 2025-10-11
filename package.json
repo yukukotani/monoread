@@ -27,6 +27,7 @@
     "lint:tsc": "tsc --noEmit",
     "lint": "pnpm --parallel run '/^lint:/'",
     "fix": "biome check --write .",
+    "open:log": "$EDITOR ~/.cache/monoread/monoread.log",
     "prepublishOnly": "pnpm build"
   },
   "keywords": [],

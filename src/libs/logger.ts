@@ -1,4 +1,5 @@
 import pino from "pino";
+import pretty from "pino-pretty";
 
 export type LogLevel =
   | "silent"
@@ -10,20 +11,22 @@ export type LogLevel =
   | "fatal";
 
 function createRootLogger(): pino.Logger {
-  return pino({
-    level: process.env.MONOREAD_LOG_LEVEL || "silent",
-    transport: {
-      target: "pino-pretty",
-      options: {
-        colorize: false,
-        ignore: "pid,hostname",
-        destination:
-          process.env.MONOREAD_LOG_FILE ||
-          `${process.env.HOME}/.cache/monoread/monoread.log`,
-        mkdir: true,
-      },
-    },
+  const logLevel = process.env.MONOREAD_LOG_LEVEL || "silent";
+
+  const prettyStream = pretty({
+    colorize: false,
+    ignore: "pid,hostname",
+    destination:
+      process.env.MONOREAD_LOG_FILE ||
+      `${process.env.HOME}/.cache/monoread/monoread.log`,
   });
+
+  return pino(
+    {
+      level: logLevel,
+    },
+    prettyStream,
+  );
 }
 
 const rootLogger: pino.Logger = createRootLogger();
